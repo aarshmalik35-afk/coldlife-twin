@@ -97,64 +97,6 @@ Add screenshots of your actual application below.
 
 ---
 
-## Installation and Setup
-
-### Prerequisites
-- Node.js and npm
-- Python 3.x (if running Python utilities)
-- Git
-- A Supabase project
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
-```
-
-### 2. Install frontend dependencies
-
-```bash
-npm install
-```
-
-### 3. Configure Supabase
-
-Create a `.env` file in the frontend project root:
-
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_publishable_or_anon_key
-```
-
-Configure the corresponding environment variables in your deployment settings as well.
-
-Ensure that database access policies are configured appropriately. Never expose a Supabase service-role key in frontend code.
-
-### 4. Run the development server
-
-```bash
-npm run dev
-```
-
-### 5. Build for production
-
-```bash
-npm run build
-```
-
-### 6. Python utilities
-
-If the repository includes Python simulation or data-preparation scripts:
-
-```bash
-pip install -r requirements.txt
-```
-
-Run the appropriate Python entry point documented in the repository.
-
----
-
 ## Deployment
 
 The frontend is deployed using GitHub Pages.
@@ -163,8 +105,6 @@ The frontend is deployed using GitHub Pages.
 2. Generate production-ready static assets.
 3. Publish the build output through the configured GitHub Pages workflow.
 4. Configure Supabase environment variables and appropriate database access policies.
-
-**Live Application:** [Open ColdChain Twin](https://YOUR_USERNAME.github.io/YOUR_REPOSITORY/)
 
 ---
 
@@ -192,14 +132,8 @@ ColdChain Twin is currently a software-based prototype that uses simulated fleet
 
 ---
 
-## Developer
-
-**[Your Name]**
-
 B.Tech – Computer Science and Engineering  
 IILM University, Gurugram
-
-GitHub: [Your GitHub Profile](https://github.com/YOUR_USERNAME)
 
 ---
 
