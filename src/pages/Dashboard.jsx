@@ -178,50 +178,32 @@ export default function Dashboard() {
   }, [])
 
 
-  useEffect(() => {
-    refresh()
+  
+useEffect(() => {
+  refresh()
+  checkBackend()
+
+  // The server-side cron runs the simulation.
+  // The browser only retrieves the latest database state.
+  const refreshId = setInterval(() => {
+    if (!paused) refresh()
+  }, 5000)
+
+  const healthId = setInterval(() => {
     checkBackend()
+  }, 30000)
 
-    const refreshId = setInterval(() => {
-      if (!paused) refresh()
-    }, 5000)
+  const onRefresh = () => refresh()
 
-    const healthId = setInterval(checkBackend, 15000)
+  window.addEventListener('coldlife-refresh', onRefresh)
 
-    const tickId = setInterval(async () => {
-      if (!paused) {
-        try {
-          await tick()
-        } catch (error) {
-          console.warn(
-            '[ColdLife] Simulation tick failed:',
-            error
-          )
-        }
+  return () => {
+    clearInterval(refreshId)
+    clearInterval(healthId)
+    window.removeEventListener('coldlife-refresh', onRefresh)
+  }
+}, [paused, refresh, checkBackend])
 
-        await refresh()
-        await checkBackend()
-      }
-    }, 15000)
-
-    const onRefresh = () => refresh()
-
-    window.addEventListener(
-      'coldlife-refresh',
-      onRefresh
-    )
-
-    return () => {
-      clearInterval(refreshId)
-      clearInterval(healthId)
-      clearInterval(tickId)
-
-      window.removeEventListener(
-        'coldlife-refresh',
-        onRefresh
-      )
-    }
-  }, [paused, refresh, checkBackend])
 
 
   const shipment =
