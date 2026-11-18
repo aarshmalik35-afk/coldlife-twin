@@ -250,7 +250,7 @@ const runTick = async () => {
   if (loading && !shipment) {
     return (
       <div className="app-loading">
-        Loading ColdLife Twin…
+        Loading A.R.C.T.I.C.…
       </div>
     )
   }
