@@ -127,30 +127,51 @@ export default function Dashboard() {
 
   const refresh = useCallback(async () => {
     try {
-      const [
-        dashboard,
-        shipments,
-        storages,
-        alerts
-      ] = await Promise.all([
+      // Keep core shipment data visible even if an unrelated
+      // dashboard metric or secondary query fails.
+      const results = await Promise.allSettled([
         getDashboard(),
         getShipments(),
         getStorages(),
         getAlerts()
       ])
 
-      setData({
-        dashboard,
-        shipments,
-        storages,
-        alerts
-      })
+      const [dashboardResult, shipmentsResult, storagesResult, alertsResult] = results
+
+      if (dashboardResult.status === 'rejected') {
+        console.error('[ColdLife] Dashboard metrics failed:', dashboardResult.reason)
+      }
+      if (shipmentsResult.status === 'rejected') {
+        console.error('[ColdLife] Shipment query failed:', shipmentsResult.reason)
+      }
+      if (storagesResult.status === 'rejected') {
+        console.error('[ColdLife] Storage query failed:', storagesResult.reason)
+      }
+      if (alertsResult.status === 'rejected') {
+        console.error('[ColdLife] Alert query failed:', alertsResult.reason)
+      }
+
+      setData(current => ({
+        dashboard: dashboardResult.status === 'fulfilled'
+          ? dashboardResult.value
+          : current.dashboard,
+        shipments: shipmentsResult.status === 'fulfilled'
+          ? shipmentsResult.value
+          : current.shipments,
+        storages: storagesResult.status === 'fulfilled'
+          ? storagesResult.value
+          : current.storages,
+        alerts: alertsResult.status === 'fulfilled'
+          ? alertsResult.value
+          : current.alerts
+      }))
 
       if (
-        !shipments.find(x => x.id === selected) &&
-        shipments[0]
+        shipmentsResult.status === 'fulfilled' &&
+        shipmentsResult.value[0] &&
+        !shipmentsResult.value.find(x => x.id === selected)
       ) {
-        setSelected(shipments[0].id)
+        setSelected(shipmentsResult.value[0].id)
       }
     } catch (error) {
       console.error(
