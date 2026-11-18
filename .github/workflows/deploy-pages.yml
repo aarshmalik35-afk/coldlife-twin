@@ -36,11 +36,11 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Build React application
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+- name: Build React application
+  run: npm run build
+  env:
+    VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+    VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
