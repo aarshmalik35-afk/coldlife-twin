@@ -169,41 +169,47 @@ export default function Dashboard() {
       checking: true
     }))
 
-    const result = await health()
+    try {
+      const result = await health()
 
-    setBackend({
-      ...result,
-      checking: false
-    })
+      setBackend({
+        ...result,
+        checking: false
+      })
+    } catch (error) {
+      setBackend({
+        checking: false,
+        ok: false,
+        message: error.message || 'Unable to reach backend.'
+      })
+    }
   }, [])
 
 
-  
-useEffect(() => {
-  refresh()
-  checkBackend()
-
-  // The server-side cron runs the simulation.
-  // The browser only retrieves the latest database state.
-  const refreshId = setInterval(() => {
-    if (!paused) refresh()
-  }, 5000)
-
-  const healthId = setInterval(() => {
+  useEffect(() => {
+    refresh()
     checkBackend()
-  }, 30000)
 
-  const onRefresh = () => refresh()
+    // The server-side cron runs the simulation.
+    // The browser only retrieves the latest database state.
+    const refreshId = setInterval(() => {
+      if (!paused) refresh()
+    }, 5000)
 
-  window.addEventListener('coldlife-refresh', onRefresh)
+    const healthId = setInterval(() => {
+      checkBackend()
+    }, 30000)
 
-  return () => {
-    clearInterval(refreshId)
-    clearInterval(healthId)
-    window.removeEventListener('coldlife-refresh', onRefresh)
-  }
-}, [paused, refresh, checkBackend])
+    const onRefresh = () => refresh()
 
+    window.addEventListener('coldlife-refresh', onRefresh)
+
+    return () => {
+      clearInterval(refreshId)
+      clearInterval(healthId)
+      window.removeEventListener('coldlife-refresh', onRefresh)
+    }
+  }, [paused, refresh, checkBackend])
 
 
   const shipment =
@@ -216,22 +222,19 @@ useEffect(() => {
   )
 
 
+  const runTick = async () => {
+    try {
+      const result = await tick()
 
-const runTick = async () => {
-  try {
-    const result = await tick()
+      console.log('[ColdLife] Simulation updated:', result)
 
-    console.log('[ColdLife] Simulation updated:', result)
-
-    await refresh()
-    await checkBackend()
-  } catch (error) {
-    console.error('[ColdLife] Manual simulation failed:', error)
-    window.alert(`Simulation failed: ${error.message}`)
+      await refresh()
+      await checkBackend()
+    } catch (error) {
+      console.error('[ColdLife] Manual simulation failed:', error)
+      window.alert(`Simulation failed: ${error.message}`)
+    }
   }
-}
-
-  
 
 
   if (loading && !shipment) {
@@ -272,36 +275,38 @@ const runTick = async () => {
 
         {/* DASHBOARD INTRODUCTION */}
 
+        <section className="dashboard-heading">
+          <div className="dashboard-heading-main">
 
-<section className="dashboard-heading">
-  <div className="dashboard-heading-main">
-    <div className="eyebrow">
-      OPERATIONS <span>/</span> LIVE DIGITAL TWIN
-    </div>
+            <div className="eyebrow">
+              OPERATIONS <span>/</span> LIVE DIGITAL TWIN
+            </div>
 
-    <h1>
-      Fleet Command <span>Centre.</span>
-    </h1>
+            <h1>
+              Fleet Command <span>Centre.</span>
+            </h1>
 
-    <p>
-      Real-time visibility across temperature-sensitive
-      shipments, fleet health and cold-chain risk.
-    </p>
-  </div>
+            <p>
+              Real-time visibility across temperature-sensitive
+              shipments, fleet health and cold-chain risk.
+            </p>
 
-  <div className="dashboard-heading-meta">
-    <div className={`simulation-pill ${paused ? 'paused' : 'running'}`}>
-      <span className="simulation-dot" />
-      {paused ? 'Simulation paused' : 'Live simulation'}
-    </div>
+          </div>
 
-    <div className="refresh-indicator">
-      <span className="refresh-indicator-dot" />
-      Auto-refresh · 5 sec
-    </div>
-  </div>
-</section>
+          <div className="dashboard-heading-meta">
 
+            <div className={`simulation-pill ${paused ? 'paused' : 'running'}`}>
+              <span className="simulation-dot" />
+              {paused ? 'Simulation paused' : 'Live simulation'}
+            </div>
+
+            <div className="refresh-indicator">
+              <span className="refresh-indicator-dot" />
+              Auto-refresh · 5 sec
+            </div>
+
+          </div>
+        </section>
 
 
         {/* SIX KPI CARDS */}
@@ -345,123 +350,147 @@ const runTick = async () => {
             icon={ShieldCheck}
           />
 
-         
+          <KpiCard
+            label="On-time delivery"
+            value={
+              data.dashboard.onTime != null
+                ? `${data.dashboard.onTime}%`
+                : '—'
+            }
+            sub={
+              data.dashboard.onTime != null
+                ? 'current forecast'
+                : 'Awaiting verified delivery outcomes'
+            }
+            icon={Clock3}
+          />
 
-<KpiCard
-  label="On-time delivery"
-  value={
-    data.dashboard.onTime == null
-      ? '—'
-      : `${data.dashboard.onTime}%`
-  }
-  sub="Awaiting verified delivery outcomes"
-  icon={Clock3}
-/>
-
-<KpiCard
-  label="Loss avoided"
-  value={data.dashboard.lossAvoided ?? '₹0'}
-  sub={`${data.dashboard.batchesSaved ?? 0} verified batches saved`}
-  icon={Coins}
-/>
-
+          <KpiCard
+            label="Loss avoided"
+            value={data.dashboard.lossAvoided ?? '₹0'}
+            sub={`${data.dashboard.batchesSaved ?? 0} batches saved`}
+            icon={Coins}
+          />
 
         </section>
 
 
         {/* CRITICAL SHIPMENT INTERVENTION */}
 
+        <section className="critical-section">
 
-<section className="critical-section">
-  <div className="critical-section-heading">
-    <div>
-      <div className="critical-eyebrow">
-        PRIORITY QUEUE
-      </div>
+          <div className="critical-section-heading">
+            <div>
+              <div className="critical-eyebrow">
+                PRIORITY QUEUE
+              </div>
 
-      <h2>Intervention required</h2>
+              <h2>Intervention required</h2>
 
-      <p>
-        Shipments requiring immediate operational attention.
-      </p>
-    </div>
+              <p>
+                Shipments requiring immediate operational attention.
+              </p>
+            </div>
 
-    <div className="critical-count">
-      <span>{criticalCount}</span>
-      <small>Critical cases</small>
-    </div>
-  </div>
+            <div className="critical-count">
+              <span>{criticalCount}</span>
+              <small>Critical cases</small>
+            </div>
+          </div>
 
-  <CriticalCasesStrip
-    shipments={data.shipments}
-    onSelect={setSelected}
-  />
-</section>
+          <CriticalCasesStrip
+            shipments={data.shipments}
+            onSelect={setSelected}
+          />
 
-
-
-        {/* FLEET MAP + SHIPMENT DETAILS */}
-
-        
-{/* FLEET COMMAND VIEW */}
-
-<section className="map-detail-grid">
-
-  <div className="glass map-panel">
-
-    <div className="map-panel-header">
-      <div>
-        <div className="map-panel-eyebrow">GEOSPATIAL MONITORING</div>
-        <h2>Live Fleet Map</h2>
-        <p>Vehicle positions and cold-chain infrastructure</p>
-      </div>
-
-      <div className="map-live-tag">
-        <span />
-        LIVE TRACKING
-      </div>
-    </div>
-
-    <div className="map-viewport">
-      <FleetMap
-        shipments={data.shipments}
-        storages={data.storages}
-        onSelect={setSelected}
-      />
-    </div>
-
-    <div className="map-panel-footer">
-      <span><i className="legend-vehicle" /> Fleet vehicles</span>
-      <span><i className="legend-hub" /> Cold storage hubs</span>
-      <span><i className="legend-risk" /> Critical shipment</span>
-    </div>
-
-  </div>
-
-  <div className="shipment-panel-wrap">
-    <div className="shipment-panel-heading">
-      <div>
-        <div className="map-panel-eyebrow">SELECTED DIGITAL TWIN</div>
-        <h2>Shipment intelligence</h2>
-      </div>
-
-      <span className="shipment-live-tag">
-        <span />
-        MONITORING
-      </span>
-    </div>
-
-    <ShipmentTwinPanel
-      s={shipment}
-      onAccept={() => nav(`/shipments/${shipment.id}`)}
-    />
-  </div>
-
-</section>
+        </section>
 
 
+        {/* FLEET MAP + SHIPMENT INTELLIGENCE */}
 
-        {/* ANALYTICS: TWO CHARTS */}
+        <section className="map-detail-grid">
+
+          <div className="glass map-panel">
+
+            <div className="map-panel-header">
+              <div>
+                <div className="map-panel-eyebrow">
+                  GEOSPATIAL MONITORING
+                </div>
+
+                <h2>Live Fleet Map</h2>
+
+                <p>
+                  Vehicle positions and cold-chain infrastructure
+                </p>
+              </div>
+
+              <div className="map-live-tag">
+                <span />
+                LIVE TRACKING
+              </div>
+            </div>
+
+            <div className="map-viewport">
+
+              <FleetMap
+                shipments={data.shipments}
+                storages={data.storages}
+                onSelect={setSelected}
+              />
+
+            </div>
+
+            <div className="map-panel-footer">
+              <span>
+                <i className="legend-vehicle" />
+                Fleet vehicles
+              </span>
+
+              <span>
+                <i className="legend-hub" />
+                Cold storage hubs
+              </span>
+
+              <span>
+                <i className="legend-risk" />
+                Critical shipment
+              </span>
+            </div>
+
+          </div>
+
+
+          <div className="shipment-panel-wrap">
+
+            <div className="shipment-panel-heading">
+              <div>
+                <div className="map-panel-eyebrow">
+                  SELECTED DIGITAL TWIN
+                </div>
+
+                <h2>Shipment intelligence</h2>
+              </div>
+
+              <span className="shipment-live-tag">
+                <span />
+                MONITORING
+              </span>
+            </div>
+
+            <ShipmentTwinPanel
+              s={shipment}
+              onAccept={() =>
+                nav(`/shipments/${shipment.id}`)
+              }
+            />
+
+          </div>
+
+        </section>
+
+
+        {/* ANALYTICS */}
 
         <section className="analytics-grid">
 
@@ -503,7 +532,7 @@ const runTick = async () => {
         </section>
 
 
-        {/* OPERATIONAL DETAILS: THREE COLUMNS */}
+        {/* OPERATIONAL DETAILS */}
 
         <section className="operations-grid">
 
@@ -568,6 +597,8 @@ const runTick = async () => {
 
         </section>
 
+
+        {/* FOOTER */}
 
         <footer className="dashboard-footer">
           Operational telemetry and risk status are sourced
