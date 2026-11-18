@@ -173,3 +173,208 @@ body {
   .analytics-grid,.operations-grid { grid-template-columns: 1fr; }
   .map-panel,.chart-panel,.operation-panel.glass,.alerts-panel { padding: 15px !important; }
 }
+
+/* =========================================
+   COLDLIFE — KPI CARDS V2
+   ========================================= */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 26px;
+  margin-bottom: 28px;
+}
+
+.kpi-card-v2 {
+  --kpi-accent: #a78bfa;
+  --kpi-glow: rgba(139, 92, 246, 0.16);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  min-height: 154px;
+  padding: 21px 22px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 15px;
+
+  border: 1px solid rgba(255, 255, 255, 0.105);
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.018) 55%,
+      rgba(139, 92, 246, 0.035)
+    ),
+    rgba(17, 18, 23, 0.88);
+
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.kpi-card-v2:hover {
+  transform: translateY(-4px);
+  border-color: rgba(167, 139, 250, 0.38);
+
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.24),
+    0 0 26px var(--kpi-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.kpi-card-top {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.kpi-card-label {
+  color: rgba(235, 235, 245, 0.72);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.kpi-card-icon {
+  width: 37px;
+  height: 37px;
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--kpi-accent);
+  border: 1px solid color-mix(in srgb, var(--kpi-accent) 25%, transparent);
+  border-radius: 11px;
+
+  background: color-mix(in srgb, var(--kpi-accent) 10%, transparent);
+}
+
+.kpi-card-value {
+  position: relative;
+  z-index: 2;
+
+  color: #f8f8fc;
+  font-size: clamp(27px, 2.3vw, 34px);
+  line-height: 1;
+  font-weight: 650;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-card-bottom {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kpi-card-indicator {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--kpi-accent);
+  box-shadow: 0 0 10px var(--kpi-glow);
+}
+
+.kpi-card-sub {
+  color: rgba(210, 211, 225, 0.57);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+}
+
+.kpi-card-glow {
+  position: absolute;
+  z-index: 1;
+  width: 150px;
+  height: 100px;
+  right: -65px;
+  bottom: -65px;
+
+  border-radius: 50%;
+  background: var(--kpi-glow);
+  filter: blur(35px);
+  pointer-events: none;
+}
+
+/* Individual metric accents */
+
+.kpi-fleet {
+  --kpi-accent: #a78bfa;
+  --kpi-glow: rgba(139, 92, 246, 0.19);
+}
+
+.kpi-shipments {
+  --kpi-accent: #67c8f3;
+  --kpi-glow: rgba(56, 189, 248, 0.15);
+}
+
+.kpi-critical {
+  --kpi-accent: #fb7185;
+  --kpi-glow: rgba(244, 63, 94, 0.16);
+}
+
+.kpi-survival {
+  --kpi-accent: #4adea0;
+  --kpi-glow: rgba(34, 197, 94, 0.14);
+}
+
+.kpi-delivery {
+  --kpi-accent: #fbbf65;
+  --kpi-glow: rgba(245, 158, 11, 0.13);
+}
+
+.kpi-savings {
+  --kpi-accent: #c4a1ff;
+  --kpi-glow: rgba(168, 85, 247, 0.17);
+}
+
+/* Responsive layout */
+
+@media (max-width: 1050px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .kpi-card-v2 {
+    min-height: 138px;
+    padding: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi-card-v2 {
+    transition: none;
+  }
+
+  .kpi-card-v2:hover {
+    transform: none;
+  }
+}
