@@ -24,7 +24,7 @@ import CustodyTimeline from '../components/CustodyTimeline'
 import VehicleHealthCard from '../components/VehicleHealthCard'
 import DriverBehaviorCard from '../components/DriverBehaviorCard'
 import AlertFeed from '../components/AlertFeed'
-import CriticalCasesStrip, {
+import OperatorMode from '../components/OperatorMode'\nimport CriticalCasesStrip, {
   isCriticalShipment
 } from '../components/CriticalCasesStrip'
 

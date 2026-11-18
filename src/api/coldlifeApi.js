@@ -1132,3 +1132,37 @@ export async function diagnoseBackend() {
 
   return checks
 }
+
+
+// Operator-only ledger reads. Existing dashboard queries remain unchanged.
+export async function getPendingInterventions() {
+  const { data, error } = await supabase
+    .from('intervention_ledger')
+    .select('id, shipment_id, action, outcome, notes, recorded_at')
+    .eq('outcome', 'pending')
+    .order('recorded_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+export async function sendOperatorAuthOtp(email) {
+  return supabaseRestFetch('/auth/v1/otp', {
+    method: 'POST',
+    body: JSON.stringify({ email, create_user: true }),
+  })
+}
+
+export async function verifyOperatorAuthOtp(email, token) {
+  return supabaseRestFetch('/auth/v1/verify', {
+    method: 'POST',
+    body: JSON.stringify({ email, token, type: 'email' }),
+  })
+}
+
+export async function submitInterventionOutcome(accessToken, payload) {
+  return supabaseRestFetch('/functions/v1/coldlife-verify-intervention', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify(payload),
+  })
+}
