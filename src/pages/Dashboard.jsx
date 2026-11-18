@@ -272,27 +272,36 @@ const runTick = async () => {
 
         {/* DASHBOARD INTRODUCTION */}
 
-        <section className="dashboard-heading">
 
-          <div className="eyebrow">
-            OPERATIONS <span>/</span> LIVE DIGITAL TWIN
-          </div>
+<section className="dashboard-heading">
+  <div className="dashboard-heading-main">
+    <div className="eyebrow">
+      OPERATIONS <span>/</span> LIVE DIGITAL TWIN
+    </div>
 
-          <h1>Fleet Command Centre</h1>
+    <h1>
+      Fleet Command <span>Centre.</span>
+    </h1>
 
-          <p>
-            Live pharmaceutical cold-chain telemetry,
-            risk prediction and controlled intervention.
-          </p>
+    <p>
+      Real-time visibility across temperature-sensitive
+      shipments, fleet health and cold-chain risk.
+    </p>
+  </div>
 
-          <div className="simulation-status">
-            <i />
-            Simulation {paused ? 'paused' : 'running'}
-            <span>·</span>
-            refreshes every 5 sec
-          </div>
+  <div className="dashboard-heading-meta">
+    <div className={`simulation-pill ${paused ? 'paused' : 'running'}`}>
+      <span className="simulation-dot" />
+      {paused ? 'Simulation paused' : 'Live simulation'}
+    </div>
 
-        </section>
+    <div className="refresh-indicator">
+      <span className="refresh-indicator-dot" />
+      Auto-refresh · 5 sec
+    </div>
+  </div>
+</section>
+
 
 
         {/* SIX KPI CARDS */}
@@ -362,14 +371,33 @@ const runTick = async () => {
 
         {/* CRITICAL SHIPMENT INTERVENTION */}
 
-        <section className="critical-section">
 
-          <CriticalCasesStrip
-            shipments={data.shipments}
-            onSelect={setSelected}
-          />
+<section className="critical-section">
+  <div className="critical-section-heading">
+    <div>
+      <div className="critical-eyebrow">
+        PRIORITY QUEUE
+      </div>
 
-        </section>
+      <h2>Intervention required</h2>
+
+      <p>
+        Shipments requiring immediate operational attention.
+      </p>
+    </div>
+
+    <div className="critical-count">
+      <span>{criticalCount}</span>
+      <small>Critical cases</small>
+    </div>
+  </div>
+
+  <CriticalCasesStrip
+    shipments={data.shipments}
+    onSelect={setSelected}
+  />
+</section>
+
 
 
         {/* FLEET MAP + SHIPMENT DETAILS */}
