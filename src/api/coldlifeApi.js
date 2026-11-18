@@ -717,8 +717,7 @@ export async function getDashboard() {
       supabase
         .from('intervention_ledger')
         .select('shipment_id, outcome, loss_avoided_inr, verified_at')
-        .eq('outcome', 'successful')
-        .not('verified_at', 'is', null),
+        .eq('outcome', 'successful'),
       []
     ),
   ])
