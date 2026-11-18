@@ -24,7 +24,8 @@ import CustodyTimeline from '../components/CustodyTimeline'
 import VehicleHealthCard from '../components/VehicleHealthCard'
 import DriverBehaviorCard from '../components/DriverBehaviorCard'
 import AlertFeed from '../components/AlertFeed'
-import OperatorMode from '../components/OperatorMode'\nimport CriticalCasesStrip, {
+import OperatorMode from '../components/OperatorMode'
+import CriticalCasesStrip, {
   isCriticalShipment
 } from '../components/CriticalCasesStrip'
 
@@ -371,6 +372,7 @@ const runTick = async () => {
 
         </section>
 
+        <OperatorMode onVerified={refresh} />
 
         {/* CRITICAL SHIPMENT INTERVENTION */}
 
