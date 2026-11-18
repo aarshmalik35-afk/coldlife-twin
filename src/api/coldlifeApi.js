@@ -716,7 +716,9 @@ export async function getDashboard() {
     safe(
       supabase
         .from('intervention_ledger')
-        .select('shipment_id, outcome, loss_avoided_inr'),
+        .select('shipment_id, outcome, loss_avoided_inr, verified_at')
+        .eq('outcome', 'successful')
+        .not('verified_at', 'is', null),
       []
     ),
   ])
@@ -754,7 +756,7 @@ export async function getDashboard() {
 
   // Only verified successful interventions count.
   const successfulInterventions = interventionRows.filter(
-    row => row.outcome === 'successful'
+    row => row.outcome === 'successful' && row.verified_at
   )
 
   // Sum the verified protected value.
@@ -795,6 +797,7 @@ export async function getDashboard() {
     lossAvoided,
     lossAvoidedInr,
     batchesSaved,
+    verifiedInterventions: successfulInterventions.length,
 
     // Not yet backed by verified delivery outcomes.
     onTime: null,
