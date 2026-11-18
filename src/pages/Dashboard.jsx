@@ -127,6 +127,7 @@ export default function Dashboard() {
 
   const refresh = useCallback(async () => {
     try {
+      // Recovery build: keep the restored dashboard layout and isolate data requests.
       const results = await Promise.allSettled([
         getDashboard(),
         getShipments(),
