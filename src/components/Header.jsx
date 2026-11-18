@@ -15,11 +15,11 @@ export default function Header({ paused, setPaused, onTick }) {
 
           <div>
             <div className="text-[15px] font-extrabold tracking-tight text-slate-900">
-              ColdLife Twin
+              A.R.C.T.I.C.
             </div>
 
             <div className="text-[10px] font-semibold uppercase tracking-[.17em] text-slate-500">
-              Cold-chain intelligence platform
+              COLD-CHAIN INTELLIGENCE
             </div>
           </div>
         </div>
