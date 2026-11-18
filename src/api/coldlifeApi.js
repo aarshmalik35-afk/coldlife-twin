@@ -1,5 +1,5 @@
 
-import { supabase, checkSupabaseConnection } from '../lib/supabase'
+import { supabase, checkSupabaseConnection, supabaseRestFetch } from '../lib/supabase'
 
 const num = (v, fallback = 0) => {
   const n = Number(v)
