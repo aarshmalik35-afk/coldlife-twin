@@ -708,10 +708,17 @@ export async function getShipment(identifier) {
 
 
 
+
 export async function getDashboard() {
-  const [shipments, fleet] = await Promise.all([
+  const [shipments, fleet, interventionRows] = await Promise.all([
     getShipments(),
     getFleet(),
+    safe(
+      supabase
+        .from('intervention_ledger')
+        .select('shipment_id, outcome, loss_avoided_inr'),
+      []
+    ),
   ])
 
   const active = shipments.filter(
@@ -745,6 +752,28 @@ export async function getDashboard() {
       ) / shipments.length
     : 0
 
+  // Only verified successful interventions count.
+  const successfulInterventions = interventionRows.filter(
+    row => row.outcome === 'successful'
+  )
+
+  // Sum the verified protected value.
+  const lossAvoidedInr = successfulInterventions.reduce(
+    (sum, row) => sum + num(row.loss_avoided_inr),
+    0
+  )
+
+  // Count each shipment only once, even if it had
+  // multiple successful interventions.
+  const batchesSaved = new Set(
+    successfulInterventions.map(row => row.shipment_id)
+  ).size
+
+  // Display in lakhs for larger amounts, otherwise rupees.
+  const lossAvoided = lossAvoidedInr >= 100000
+    ? `₹${(lossAvoidedInr / 100000).toFixed(2)}L`
+    : `₹${Math.round(lossAvoidedInr).toLocaleString('en-IN')}`
+
   return {
     activeFleet: fleet.length,
     fleetActive: fleet.length,
@@ -762,17 +791,21 @@ export async function getDashboard() {
     avgSurvival: Number(avg.toFixed(1)),
     averageSurvivalScore: Number(avg.toFixed(1)),
 
-    // These metrics must not display invented estimates.
+    // Ledger-backed metrics.
+    lossAvoided,
+    lossAvoidedInr,
+    batchesSaved,
+
+    // Not yet backed by verified delivery outcomes.
     onTime: null,
     onTimeDelivery: null,
-    lossAvoided: null,
-    batchesSaved: null,
 
     lowFuelVehicles: shipments.filter(
       s => s.fuelLevelPct < 30
     ).length,
   }
 }
+
 
 
 export async function getFleet() {
