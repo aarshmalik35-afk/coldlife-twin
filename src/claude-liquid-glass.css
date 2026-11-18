@@ -565,3 +565,197 @@ body {
   }
 }
 
+
+/* =========================================
+   FLEET MAP + SHIPMENT INTELLIGENCE
+   ========================================= */
+
+.map-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(340px, .85fr);
+  gap: 18px;
+  align-items: stretch;
+  margin: 30px 0;
+}
+
+.map-panel,
+.shipment-panel-wrap {
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 19px;
+  background: rgba(18,19,25,.82);
+  box-shadow: 0 12px 35px rgba(0,0,0,.17);
+  overflow: hidden;
+}
+
+.map-panel-header {
+  padding: 21px 22px 17px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.map-panel-eyebrow {
+  color: #a78bfa;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .16em;
+  margin-bottom: 8px;
+}
+
+.map-panel-header h2,
+.shipment-panel-heading h2 {
+  margin: 0;
+  color: #f6f5fb;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -.035em;
+}
+
+.map-panel-header p {
+  color: rgba(220,220,235,.48);
+  font-size: 11px;
+  margin: 7px 0 0;
+}
+
+.map-live-tag,
+.shipment-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(74,222,160,.18);
+  border-radius: 30px;
+  color: #7de2b2;
+  background: rgba(74,222,160,.055);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.map-live-tag span,
+.shipment-live-tag span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4adea0;
+  box-shadow: 0 0 9px rgba(74,222,160,.65);
+}
+
+.map-viewport {
+  position: relative;
+  height: 410px;
+  overflow: hidden;
+  background: #151820;
+}
+
+/* Keep Leaflet inside its panel */
+
+.map-viewport .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #171b24;
+  z-index: 1;
+}
+
+.map-panel-footer {
+  min-height: 49px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.map-panel-footer span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(225,225,238,.58);
+  font-size: 10px;
+  font-weight: 550;
+}
+
+.map-panel-footer i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.legend-vehicle { background: #67c8f3; }
+.legend-hub { background: #a78bfa; }
+.legend-risk { background: #fb7185; }
+
+/* Shipment panel heading */
+
+.shipment-panel-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.shipment-panel-heading {
+  padding: 21px 21px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.shipment-live-tag {
+  font-size: 8px;
+  padding: 7px 9px;
+}
+
+/* Existing ShipmentTwinPanel visual integration */
+
+.shipment-panel-wrap > *:last-child {
+  min-width: 0;
+}
+
+.shipment-panel-wrap .glass {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.shipment-panel-wrap button {
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.shipment-panel-wrap button:hover {
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+
+@media (max-width: 1050px) {
+  .map-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-viewport {
+    height: 360px;
+  }
+}
+
+@media (max-width: 560px) {
+  .map-panel-header,
+  .shipment-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .map-viewport {
+    height: 300px;
+  }
+
+  .map-panel-footer {
+    gap: 12px;
+  }
+}
+
