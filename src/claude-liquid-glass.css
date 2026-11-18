@@ -1233,7 +1233,7 @@ button:focus-visible {
 
 
 /* Fleet Command Centre — refined glass-text treatment only */
-.dashboard-heading > h1 {
+.dashboard-heading-main > h1 {
   display: inline-block;
   width: fit-content;
   max-width: 100%;
@@ -1267,7 +1267,7 @@ button:focus-visible {
 }
 
 @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .dashboard-heading > h1 {
+  .dashboard-heading-main > h1 {
     color: #f1edff;
     -webkit-text-fill-color: currentColor;
     background: none;
@@ -1322,5 +1322,93 @@ button:focus-visible {
 
   .dashboard-heading .simulation-status {
     margin-left: 0;
+  }
+}
+
+
+/* A.R.C.T.I.C. identity and clean command-heading composition */
+.app-header .text-slate-900 {
+  color: #f4efff;
+  letter-spacing: -.035em;
+}
+
+.app-header .text-slate-500 {
+  color: rgba(213,203,238,.62);
+}
+
+.dashboard-heading {
+  align-items: center;
+  gap: 30px;
+}
+
+.dashboard-heading-main {
+  max-width: none;
+  flex: 1;
+  display: grid;
+  grid-template-columns: max-content minmax(0, max-content) minmax(220px, 1fr);
+  align-items: center;
+  column-gap: 24px;
+  row-gap: 9px;
+}
+
+.dashboard-heading-main .eyebrow {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+}
+
+.dashboard-heading-main h1 {
+  grid-column: 1;
+  grid-row: 2;
+  white-space: nowrap;
+}
+
+.dashboard-heading-main p {
+  grid-column: 2;
+  grid-row: 2;
+  max-width: 560px;
+  margin: 0;
+  padding-left: 22px;
+  border-left: 1px solid rgba(196,181,253,.20);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.dashboard-heading .simulation-status {
+  align-self: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .dashboard-heading-main {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 10px;
+  }
+
+  .dashboard-heading-main .eyebrow,
+  .dashboard-heading-main h1,
+  .dashboard-heading-main p {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-heading-main h1 {
+    white-space: normal;
+  }
+
+  .dashboard-heading-main p {
+    padding: 0;
+    border: 0;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-heading {
+    align-items: flex-start;
+  }
+
+  .dashboard-heading .simulation-status {
+    align-self: flex-start;
+    white-space: normal;
   }
 }
