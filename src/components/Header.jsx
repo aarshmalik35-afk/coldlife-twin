@@ -1,5 +1,5 @@
 
-import { Activity, Pause, Play, RotateCw } from 'lucide-react'
+import { Snowflake, Pause, Play, RotateCw } from 'lucide-react'
 
 export default function Header({ paused, setPaused, onTick }) {
   return (
@@ -9,8 +9,9 @@ export default function Header({ paused, setPaused, onTick }) {
         {/* Brand */}
 
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50 text-cyan-700 shadow-[0_2px_10px_rgba(28,104,130,.10),inset_0_1px_0_white]">
-            <Activity size={19} strokeWidth={2.1} />
+          <div className="arctic-logo-mark" aria-label="A.R.C.T.I.C. logo">
+            <span className="arctic-logo-orbit" />
+            <Snowflake size={22} strokeWidth={1.8} />
           </div>
 
           <div>
@@ -18,8 +19,8 @@ export default function Header({ paused, setPaused, onTick }) {
               A.R.C.T.I.C.
             </div>
 
-            <div className="text-[10px] font-semibold uppercase tracking-[.17em] text-slate-500">
-              COLD-CHAIN INTELLIGENCE
+            <div className="arctic-brand-expansion text-slate-500">
+              Autonomous Risk Computation and Temperature Intelligence Core
             </div>
           </div>
         </div>
