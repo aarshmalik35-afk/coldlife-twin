@@ -368,7 +368,7 @@ export default function Dashboard() {
           <KpiCard
             label="Loss avoided"
             value={data.dashboard.lossAvoided ?? '₹0'}
-            sub={`${data.dashboard.batchesSaved ?? 0} batches saved`}
+            sub={`${data.dashboard.verifiedInterventions ?? 0} verified interventions`}
             icon={Coins}
           />
 
