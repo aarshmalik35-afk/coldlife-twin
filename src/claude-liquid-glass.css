@@ -1412,3 +1412,76 @@ button:focus-visible {
     white-space: normal;
   }
 }
+
+
+/* A.R.C.T.I.C. identity mark and full acronym expansion */
+.arctic-logo-mark {
+  position: relative;
+  isolation: isolate;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(221, 210, 255, .48);
+  border-radius: 15px;
+  color: #7652c8;
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255,255,255,.98), transparent 48%),
+    linear-gradient(145deg, #f4f0ff 0%, #dcd2f5 58%, #c7b6ed 100%);
+  box-shadow:
+    0 4px 18px rgba(139,92,246,.17),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(106,75,166,.12);
+}
+
+.arctic-logo-mark::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(118,82,200,.17);
+  border-radius: 11px;
+  pointer-events: none;
+}
+
+.arctic-logo-mark svg {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 1px 1px rgba(92,61,155,.14));
+}
+
+.arctic-logo-orbit {
+  position: absolute;
+  width: 34px;
+  height: 15px;
+  border: 1px solid rgba(118,82,200,.36);
+  border-radius: 50%;
+  transform: rotate(-38deg);
+}
+
+.app-header .arctic-brand-expansion {
+  display: block;
+  max-width: 470px;
+  color: rgba(205,195,229,.68);
+  font-size: 9px;
+  line-height: 1.35;
+  font-weight: 550;
+  letter-spacing: .015em;
+  text-transform: none;
+  white-space: normal;
+}
+
+@media (max-width: 640px) {
+  .app-header .arctic-brand-expansion {
+    max-width: 235px;
+    font-size: 8px;
+    line-height: 1.3;
+  }
+
+  .arctic-logo-mark {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+}
