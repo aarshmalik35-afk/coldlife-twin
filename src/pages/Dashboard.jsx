@@ -402,47 +402,63 @@ const runTick = async () => {
 
         {/* FLEET MAP + SHIPMENT DETAILS */}
 
-        <section className="map-detail-grid">
+        
+{/* FLEET COMMAND VIEW */}
 
-          <div className="glass map-panel">
+<section className="map-detail-grid">
 
-            <div className="panel-heading">
+  <div className="glass map-panel">
 
-              <div className="panel-title">
-                Live Fleet Map
-              </div>
+    <div className="map-panel-header">
+      <div>
+        <div className="map-panel-eyebrow">GEOSPATIAL MONITORING</div>
+        <h2>Live Fleet Map</h2>
+        <p>Vehicle positions and cold-chain infrastructure</p>
+      </div>
 
-              <div className="panel-subtitle">
-                MUMBAI OPERATIONS ZONE · LIVE VEHICLES AND COLD HUBS
-              </div>
+      <div className="map-live-tag">
+        <span />
+        LIVE TRACKING
+      </div>
+    </div>
 
-            </div>
+    <div className="map-viewport">
+      <FleetMap
+        shipments={data.shipments}
+        storages={data.storages}
+        onSelect={setSelected}
+      />
+    </div>
 
-            <div className="map-viewport">
+    <div className="map-panel-footer">
+      <span><i className="legend-vehicle" /> Fleet vehicles</span>
+      <span><i className="legend-hub" /> Cold storage hubs</span>
+      <span><i className="legend-risk" /> Critical shipment</span>
+    </div>
 
-              <FleetMap
-                shipments={data.shipments}
-                storages={data.storages}
-                onSelect={setSelected}
-              />
+  </div>
 
-            </div>
+  <div className="shipment-panel-wrap">
+    <div className="shipment-panel-heading">
+      <div>
+        <div className="map-panel-eyebrow">SELECTED DIGITAL TWIN</div>
+        <h2>Shipment intelligence</h2>
+      </div>
 
-          </div>
+      <span className="shipment-live-tag">
+        <span />
+        MONITORING
+      </span>
+    </div>
 
+    <ShipmentTwinPanel
+      s={shipment}
+      onAccept={() => nav(`/shipments/${shipment.id}`)}
+    />
+  </div>
 
-          <div className="shipment-panel-wrap">
+</section>
 
-            <ShipmentTwinPanel
-              s={shipment}
-              onAccept={() =>
-                nav(`/shipments/${shipment.id}`)
-              }
-            />
-
-          </div>
-
-        </section>
 
 
         {/* ANALYTICS: TWO CHARTS */}
