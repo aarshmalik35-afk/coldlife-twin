@@ -337,6 +337,7 @@ const runTick = async () => {
           />
 
          
+
 <KpiCard
   label="On-time delivery"
   value={
@@ -348,12 +349,10 @@ const runTick = async () => {
   icon={Clock3}
 />
 
-
-          
 <KpiCard
   label="Loss avoided"
-  value={data.dashboard.lossAvoided ?? '—'}
-  sub="Awaiting recorded intervention savings"
+  value={data.dashboard.lossAvoided ?? '₹0'}
+  sub={`${data.dashboard.batchesSaved ?? 0} verified batches saved`}
   icon={Coins}
 />
 
