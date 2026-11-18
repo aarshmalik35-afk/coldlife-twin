@@ -127,8 +127,6 @@ export default function Dashboard() {
 
   const refresh = useCallback(async () => {
     try {
-      // Keep core shipment data visible even if an unrelated
-      // dashboard metric or secondary query fails.
       const results = await Promise.allSettled([
         getDashboard(),
         getShipments(),
@@ -152,18 +150,10 @@ export default function Dashboard() {
       }
 
       setData(current => ({
-        dashboard: dashboardResult.status === 'fulfilled'
-          ? dashboardResult.value
-          : current.dashboard,
-        shipments: shipmentsResult.status === 'fulfilled'
-          ? shipmentsResult.value
-          : current.shipments,
-        storages: storagesResult.status === 'fulfilled'
-          ? storagesResult.value
-          : current.storages,
-        alerts: alertsResult.status === 'fulfilled'
-          ? alertsResult.value
-          : current.alerts
+        dashboard: dashboardResult.status === 'fulfilled' ? dashboardResult.value : current.dashboard,
+        shipments: shipmentsResult.status === 'fulfilled' ? shipmentsResult.value : current.shipments,
+        storages: storagesResult.status === 'fulfilled' ? storagesResult.value : current.storages,
+        alerts: alertsResult.status === 'fulfilled' ? alertsResult.value : current.alerts
       }))
 
       if (
@@ -190,47 +180,41 @@ export default function Dashboard() {
       checking: true
     }))
 
-    try {
-      const result = await health()
+    const result = await health()
 
-      setBackend({
-        ...result,
-        checking: false
-      })
-    } catch (error) {
-      setBackend({
-        checking: false,
-        ok: false,
-        message: error.message || 'Unable to reach backend.'
-      })
-    }
+    setBackend({
+      ...result,
+      checking: false
+    })
   }, [])
 
 
-  useEffect(() => {
-    refresh()
+  
+useEffect(() => {
+  refresh()
+  checkBackend()
+
+  // The server-side cron runs the simulation.
+  // The browser only retrieves the latest database state.
+  const refreshId = setInterval(() => {
+    if (!paused) refresh()
+  }, 5000)
+
+  const healthId = setInterval(() => {
     checkBackend()
+  }, 30000)
 
-    // The server-side cron runs the simulation.
-    // The browser only retrieves the latest database state.
-    const refreshId = setInterval(() => {
-      if (!paused) refresh()
-    }, 5000)
+  const onRefresh = () => refresh()
 
-    const healthId = setInterval(() => {
-      checkBackend()
-    }, 30000)
+  window.addEventListener('coldlife-refresh', onRefresh)
 
-    const onRefresh = () => refresh()
+  return () => {
+    clearInterval(refreshId)
+    clearInterval(healthId)
+    window.removeEventListener('coldlife-refresh', onRefresh)
+  }
+}, [paused, refresh, checkBackend])
 
-    window.addEventListener('coldlife-refresh', onRefresh)
-
-    return () => {
-      clearInterval(refreshId)
-      clearInterval(healthId)
-      window.removeEventListener('coldlife-refresh', onRefresh)
-    }
-  }, [paused, refresh, checkBackend])
 
 
   const shipment =
@@ -243,19 +227,22 @@ export default function Dashboard() {
   )
 
 
-  const runTick = async () => {
-    try {
-      const result = await tick()
 
-      console.log('[ColdLife] Simulation updated:', result)
+const runTick = async () => {
+  try {
+    const result = await tick()
 
-      await refresh()
-      await checkBackend()
-    } catch (error) {
-      console.error('[ColdLife] Manual simulation failed:', error)
-      window.alert(`Simulation failed: ${error.message}`)
-    }
+    console.log('[ColdLife] Simulation updated:', result)
+
+    await refresh()
+    await checkBackend()
+  } catch (error) {
+    console.error('[ColdLife] Manual simulation failed:', error)
+    window.alert(`Simulation failed: ${error.message}`)
   }
+}
+
+  
 
 
   if (loading && !shipment) {
@@ -297,36 +284,25 @@ export default function Dashboard() {
         {/* DASHBOARD INTRODUCTION */}
 
         <section className="dashboard-heading">
-          <div className="dashboard-heading-main">
 
-            <div className="eyebrow">
-              OPERATIONS <span>/</span> LIVE DIGITAL TWIN
-            </div>
-
-            <h1>
-              Fleet Command <span>Centre.</span>
-            </h1>
-
-            <p>
-              Real-time visibility across temperature-sensitive
-              shipments, fleet health and cold-chain risk.
-            </p>
-
+          <div className="eyebrow">
+            OPERATIONS <span>/</span> LIVE DIGITAL TWIN
           </div>
 
-          <div className="dashboard-heading-meta">
+          <h1>Fleet Command Centre</h1>
 
-            <div className={`simulation-pill ${paused ? 'paused' : 'running'}`}>
-              <span className="simulation-dot" />
-              {paused ? 'Simulation paused' : 'Live simulation'}
-            </div>
+          <p>
+            Live pharmaceutical cold-chain telemetry,
+            risk prediction and controlled intervention.
+          </p>
 
-            <div className="refresh-indicator">
-              <span className="refresh-indicator-dot" />
-              Auto-refresh · 5 sec
-            </div>
-
+          <div className="simulation-status">
+            <i />
+            Simulation {paused ? 'paused' : 'running'}
+            <span>·</span>
+            refreshes every 5 sec
           </div>
+
         </section>
 
 
@@ -371,27 +347,26 @@ export default function Dashboard() {
             icon={ShieldCheck}
           />
 
-          <KpiCard
-            label="On-time delivery"
-            value={
-              data.dashboard.onTime != null
-                ? `${data.dashboard.onTime}%`
-                : '—'
-            }
-            sub={
-              data.dashboard.onTime != null
-                ? 'current forecast'
-                : 'Awaiting verified delivery outcomes'
-            }
-            icon={Clock3}
-          />
+         
 
-          <KpiCard
-            label="Loss avoided"
-            value={data.dashboard.lossAvoided ?? '₹0'}
-            sub={`${data.dashboard.verifiedInterventions ?? 0} verified interventions`}
-            icon={Coins}
-          />
+<KpiCard
+  label="On-time delivery"
+  value={
+    data.dashboard.onTime == null
+      ? '—'
+      : `${data.dashboard.onTime}%`
+  }
+  sub="Awaiting verified delivery outcomes"
+  icon={Clock3}
+/>
+
+<KpiCard
+  label="Loss avoided"
+  value={data.dashboard.lossAvoided ?? '₹0'}
+  sub={`${data.dashboard.batchesSaved ?? 0} verified batches saved`}
+  icon={Coins}
+/>
+
 
         </section>
 
@@ -399,25 +374,6 @@ export default function Dashboard() {
         {/* CRITICAL SHIPMENT INTERVENTION */}
 
         <section className="critical-section">
-
-          <div className="critical-section-heading">
-            <div>
-              <div className="critical-eyebrow">
-                PRIORITY QUEUE
-              </div>
-
-              <h2>Intervention required</h2>
-
-              <p>
-                Shipments requiring immediate operational attention.
-              </p>
-            </div>
-
-            <div className="critical-count">
-              <span>{criticalCount}</span>
-              <small>Critical cases</small>
-            </div>
-          </div>
 
           <CriticalCasesStrip
             shipments={data.shipments}
@@ -427,29 +383,22 @@ export default function Dashboard() {
         </section>
 
 
-        {/* FLEET MAP + SHIPMENT INTELLIGENCE */}
+        {/* FLEET MAP + SHIPMENT DETAILS */}
 
         <section className="map-detail-grid">
 
           <div className="glass map-panel">
 
-            <div className="map-panel-header">
-              <div>
-                <div className="map-panel-eyebrow">
-                  GEOSPATIAL MONITORING
-                </div>
+            <div className="panel-heading">
 
-                <h2>Live Fleet Map</h2>
-
-                <p>
-                  Vehicle positions and cold-chain infrastructure
-                </p>
+              <div className="panel-title">
+                Live Fleet Map
               </div>
 
-              <div className="map-live-tag">
-                <span />
-                LIVE TRACKING
+              <div className="panel-subtitle">
+                MUMBAI OPERATIONS ZONE · LIVE VEHICLES AND COLD HUBS
               </div>
+
             </div>
 
             <div className="map-viewport">
@@ -462,42 +411,10 @@ export default function Dashboard() {
 
             </div>
 
-            <div className="map-panel-footer">
-              <span>
-                <i className="legend-vehicle" />
-                Fleet vehicles
-              </span>
-
-              <span>
-                <i className="legend-hub" />
-                Cold storage hubs
-              </span>
-
-              <span>
-                <i className="legend-risk" />
-                Critical shipment
-              </span>
-            </div>
-
           </div>
 
 
           <div className="shipment-panel-wrap">
-
-            <div className="shipment-panel-heading">
-              <div>
-                <div className="map-panel-eyebrow">
-                  SELECTED DIGITAL TWIN
-                </div>
-
-                <h2>Shipment intelligence</h2>
-              </div>
-
-              <span className="shipment-live-tag">
-                <span />
-                MONITORING
-              </span>
-            </div>
 
             <ShipmentTwinPanel
               s={shipment}
@@ -511,7 +428,7 @@ export default function Dashboard() {
         </section>
 
 
-        {/* ANALYTICS */}
+        {/* ANALYTICS: TWO CHARTS */}
 
         <section className="analytics-grid">
 
@@ -553,7 +470,7 @@ export default function Dashboard() {
         </section>
 
 
-        {/* OPERATIONAL DETAILS */}
+        {/* OPERATIONAL DETAILS: THREE COLUMNS */}
 
         <section className="operations-grid">
 
@@ -618,8 +535,6 @@ export default function Dashboard() {
 
         </section>
 
-
-        {/* FOOTER */}
 
         <footer className="dashboard-footer">
           Operational telemetry and risk status are sourced
