@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AlertTriangle,
@@ -7,7 +7,11 @@ import {
   Coins,
   Package,
   ShieldCheck,
-  Truck
+  Truck,
+  Wifi,
+  WifiOff,
+  LoaderCircle,
+  RefreshCw,
 } from 'lucide-react'
 
 import Header from '../components/Header'
@@ -29,8 +33,76 @@ import {
   getDashboard,
   getShipments,
   getStorages,
-  tick
+  tick,
+  health
 } from '../api/coldlifeApi'
+
+
+function BackendConnectionBanner({ status, onRetry }) {
+  const connected = status?.ok === true
+  const checking = status?.checking === true
+
+  const title = checking
+    ? 'Checking backend connection'
+    : connected
+      ? 'Backend connected'
+      : 'Backend disconnected'
+
+  const detail = checking
+    ? 'Verifying Supabase REST API availability…'
+    : connected
+      ? 'Supabase REST API is reachable. Dashboard data is being served from your database.'
+      : (
+          status?.message ||
+          'Unable to reach Supabase. Check your project URL, public key, network and database policies.'
+        )
+
+  return (
+    <div
+      className={`connection-banner ${
+        checking
+          ? 'is-checking'
+          : connected
+            ? 'is-online'
+            : 'is-offline'
+      }`}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="connection-copy">
+        <span className="connection-icon">
+          {checking ? (
+            <LoaderCircle size={17} className="spin" />
+          ) : connected ? (
+            <Wifi size={17} />
+          ) : (
+            <WifiOff size={17} />
+          )}
+        </span>
+
+        <div>
+          <div className="connection-title">{title}</div>
+          <div className="connection-detail">{detail}</div>
+        </div>
+      </div>
+
+      {!connected && !checking && (
+        <button
+          onClick={onRetry}
+          className="connection-retry"
+        >
+          <RefreshCw size={13} />
+          Retry connection
+        </button>
+      )}
+
+      {connected && (
+        <span className="connection-state">ONLINE</span>
+      )}
+    </div>
+  )
+}
+
 
 export default function Dashboard() {
   const nav = useNavigate()
@@ -46,7 +118,14 @@ export default function Dashboard() {
   const [paused, setPaused] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  const refresh = async () => {
+  const [backend, setBackend] = useState({
+    checking: true,
+    ok: false,
+    message: ''
+  })
+
+
+  const refresh = useCallback(async () => {
     try {
       const [
         dashboard,
@@ -73,40 +152,79 @@ export default function Dashboard() {
       ) {
         setSelected(shipments[0].id)
       }
+    } catch (error) {
+      console.error(
+        '[ColdLife] Dashboard refresh failed:',
+        error
+      )
     } finally {
       setLoading(false)
     }
-  }
+  }, [selected])
+
+
+  const checkBackend = useCallback(async () => {
+    setBackend(current => ({
+      ...current,
+      checking: true
+    }))
+
+    const result = await health()
+
+    setBackend({
+      ...result,
+      checking: false
+    })
+  }, [])
+
 
   useEffect(() => {
     refresh()
+    checkBackend()
 
     const refreshId = setInterval(() => {
       if (!paused) refresh()
     }, 5000)
 
+    const healthId = setInterval(checkBackend, 15000)
+
     const tickId = setInterval(async () => {
       if (!paused) {
-        await tick()
+        try {
+          await tick()
+        } catch (error) {
+          console.warn(
+            '[ColdLife] Simulation tick failed:',
+            error
+          )
+        }
+
         await refresh()
+        await checkBackend()
       }
     }, 15000)
 
     const onRefresh = () => refresh()
 
-    window.addEventListener('coldlife-refresh', onRefresh)
+    window.addEventListener(
+      'coldlife-refresh',
+      onRefresh
+    )
 
     return () => {
       clearInterval(refreshId)
+      clearInterval(healthId)
       clearInterval(tickId)
+
       window.removeEventListener(
         'coldlife-refresh',
         onRefresh
       )
     }
-  }, [paused])
+  }, [paused, refresh, checkBackend])
 
-  const s =
+
+  const shipment =
     data.shipments.find(x => x.id === selected) ||
     data.shipments[0]
 
@@ -115,68 +233,89 @@ export default function Dashboard() {
     [data.shipments]
   )
 
-  if (loading && !s) {
+
+  const runTick = async () => {
+    try {
+      await tick()
+      await refresh()
+      await checkBackend()
+    } catch (error) {
+      console.error(
+        '[ColdLife] Manual tick failed:',
+        error
+      )
+    }
+  }
+
+
+  if (loading && !shipment) {
     return (
-      <div className="min-h-screen grid-bg flex items-center justify-center text-slate-400">
+      <div className="app-loading">
         Loading ColdLife Twin…
       </div>
     )
   }
 
-  if (!s) {
+  if (!shipment) {
     return (
-      <div className="min-h-screen grid-bg flex items-center justify-center text-red-300">
+      <div className="app-loading error">
         No shipment data available.
       </div>
     )
   }
 
+
   return (
-    <div className="min-h-screen grid-bg">
+    <div className="app-shell">
 
       <Header
         paused={paused}
         setPaused={setPaused}
-        onTick={async () => {
-          await tick()
-          await refresh()
-        }}
+        onTick={runTick}
       />
 
-      <main className="dashboard-main">
+      <main className="dashboard-content">
 
-        {/* INTRODUCTION */}
+        {/* BACKEND CONNECTION */}
 
-        <section className="dashboard-intro">
-          <div>
-            <div className="eyebrow">
-              Operations / Live digital twin
-            </div>
+        <BackendConnectionBanner
+          status={backend}
+          onRetry={checkBackend}
+        />
 
-            <h1 className="page-title">
-              Fleet command centre
-            </h1>
 
-            <p className="page-description">
-              A consolidated view of fleet movement, cargo
-              condition and cold-chain risk across your operation.
-            </p>
+        {/* DASHBOARD INTRODUCTION */}
+
+        <section className="dashboard-heading">
+
+          <div className="eyebrow">
+            OPERATIONS <span>/</span> LIVE DIGITAL TWIN
           </div>
 
-          <div className="live-indicator">
-            <span className="live-dot" />
+          <h1>Fleet Command Centre</h1>
+
+          <p>
+            Live pharmaceutical cold-chain telemetry,
+            risk prediction and controlled intervention.
+          </p>
+
+          <div className="simulation-status">
+            <i />
             Simulation {paused ? 'paused' : 'running'}
-            <span aria-hidden="true">·</span>
+            <span>·</span>
             refreshes every 5 sec
           </div>
+
         </section>
 
-        {/* FLEET OVERVIEW */}
+
+        {/* SIX KPI CARDS */}
 
         <section
           className="kpi-grid"
-          aria-label="Fleet overview metrics"
+          aria-label="Fleet overview"
         >
+
           <KpiCard
             label="Active fleet"
             value={
@@ -200,12 +339,12 @@ export default function Dashboard() {
           <KpiCard
             label="Critical shipments"
             value={criticalCount}
-            sub="require intervention"
+            sub="requires intervention"
             icon={AlertTriangle}
           />
 
           <KpiCard
-            label="Average survival"
+            label="Avg survival"
             value={`${data.dashboard.avgSurvival ?? 0}%`}
             sub="predicted viability"
             icon={ShieldCheck}
@@ -224,121 +363,165 @@ export default function Dashboard() {
             sub={`${data.dashboard.batchesSaved ?? 0} batches saved`}
             icon={Coins}
           />
+
         </section>
 
-        {/* CRITICAL SHIPMENTS */}
 
-        <CriticalCasesStrip
-          shipments={data.shipments}
-          onSelect={setSelected}
-        />
+        {/* CRITICAL SHIPMENT INTERVENTION */}
 
-        {/* LIVE MAP + SELECTED SHIPMENT */}
+        <section className="critical-section">
+
+          <CriticalCasesStrip
+            shipments={data.shipments}
+            onSelect={setSelected}
+          />
+
+        </section>
+
+
+        {/* FLEET MAP + SHIPMENT DETAILS */}
 
         <section className="map-detail-grid">
 
           <div className="glass map-panel">
 
-            <div className="map-panel-heading">
-              <div className="section-heading">
-                Fleet in motion
+            <div className="panel-heading">
+
+              <div className="panel-title">
+                Live Fleet Map
               </div>
 
-              <div className="section-kicker">
-                Mumbai operations zone · vehicles and cold-storage hubs
+              <div className="panel-subtitle">
+                MUMBAI OPERATIONS ZONE · LIVE VEHICLES AND COLD HUBS
               </div>
+
             </div>
 
-            <div className="map-frame">
+            <div className="map-viewport">
+
               <FleetMap
                 shipments={data.shipments}
                 storages={data.storages}
                 onSelect={setSelected}
               />
+
             </div>
 
           </div>
 
-          <ShipmentTwinPanel
-            s={s}
-            onAccept={() => nav(`/shipments/${s.id}`)}
-          />
+
+          <div className="shipment-panel-wrap">
+
+            <ShipmentTwinPanel
+              s={shipment}
+              onAccept={() =>
+                nav(`/shipments/${shipment.id}`)
+              }
+            />
+
+          </div>
 
         </section>
 
-        {/* ANALYTICS */}
 
-        <section className="chart-grid">
+        {/* ANALYTICS: TWO CHARTS */}
 
-          <div className="glass p-5">
-            <div className="section-heading">
+        <section className="analytics-grid">
+
+          <div className="glass chart-panel">
+
+            <div className="panel-title">
               Temperature trajectory
             </div>
 
-            <div className="text-xs text-slate-500">
-              Shipment temperature against its permitted range
+            <div className="panel-subtitle">
+              LIVE SENSOR SIGNAL · PERMITTED RANGE SHADED
             </div>
 
             <TemperatureChart
-              data={s.tempHistory}
-              safeMin={s.safeMin}
-              safeMax={s.safeMax}
+              data={shipment.tempHistory}
+              safeMin={shipment.safeMin}
+              safeMax={shipment.safeMax}
             />
+
           </div>
 
-          <div className="glass p-5">
-            <div className="section-heading">
+
+          <div className="glass chart-panel">
+
+            <div className="panel-title">
               Survival / risk trend
             </div>
 
-            <div className="text-xs text-slate-500">
-              Product viability score over the journey
+            <div className="panel-subtitle">
+              PRODUCT VIABILITY SCORE
             </div>
 
-            <RiskTrendChart values={s.riskHistory} />
+            <RiskTrendChart
+              values={shipment.riskHistory}
+            />
+
           </div>
 
         </section>
 
-        {/* OPERATIONAL INTELLIGENCE */}
 
-        <section className="detail-grid">
+        {/* OPERATIONAL DETAILS: THREE COLUMNS */}
 
-          <div className="glass p-5">
-            <div className="mb-4 section-heading">
+        <section className="operations-grid">
+
+          <div className="glass operation-panel">
+
+            <div className="panel-title">
               Chain of custody
             </div>
 
-            <CustodyTimeline events={s.events} />
+            <CustodyTimeline
+              events={shipment.events}
+            />
+
           </div>
 
-          <VehicleHealthCard s={s} />
 
-          <DriverBehaviorCard s={s} />
+          <div className="operation-panel">
+
+            <VehicleHealthCard s={shipment} />
+
+          </div>
+
+
+          <div className="operation-panel">
+
+            <DriverBehaviorCard s={shipment} />
+
+          </div>
 
         </section>
 
-        {/* ALERTS */}
 
-        <section className="glass alerts-panel p-5">
+        {/* ACTIVE ALERTS */}
 
-          <div className="mb-4 flex items-center justify-between gap-4">
+        <section className="glass alerts-panel">
+
+          <div className="alerts-heading">
+
             <div>
-              <div className="section-heading">
+              <div className="panel-title">
                 Active alerts
               </div>
 
-              <div className="section-kicker">
-                Prioritised by operational impact
+              <div className="panel-subtitle">
+                PRIORITISED BY OPERATIONAL IMPACT
               </div>
             </div>
 
             <button
               onClick={() => nav('/alerts')}
-              className="text-xs font-bold text-cyan-700 hover:text-cyan-900"
+              className="view-all"
             >
-              View all alerts →
+              View all →
             </button>
+
           </div>
 
           <AlertFeed
@@ -348,7 +531,15 @@ export default function Dashboard() {
 
         </section>
 
+
+        <footer className="dashboard-footer">
+          Operational telemetry and risk status are sourced
+          from Supabase. Gemini is reserved for optional
+          AI-generated insights.
+        </footer>
+
       </main>
+
     </div>
   )
 }
