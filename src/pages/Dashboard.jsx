@@ -216,18 +216,22 @@ useEffect(() => {
   )
 
 
-  const runTick = async () => {
-    try {
-      await tick()
-      await refresh()
-      await checkBackend()
-    } catch (error) {
-      console.error(
-        '[ColdLife] Manual tick failed:',
-        error
-      )
-    }
+
+const runTick = async () => {
+  try {
+    const result = await tick()
+
+    console.log('[ColdLife] Simulation updated:', result)
+
+    await refresh()
+    await checkBackend()
+  } catch (error) {
+    console.error('[ColdLife] Manual simulation failed:', error)
+    window.alert(`Simulation failed: ${error.message}`)
   }
+}
+
+  
 
 
   if (loading && !shipment) {
