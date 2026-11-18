@@ -759,3 +759,424 @@ body {
   }
 }
 
+
+/* =====================================================
+   COLDLIFE TWIN — FINAL DASHBOARD DESIGN PASS
+   Map • Shipment • Analytics • Operations • Alerts
+   ===================================================== */
+
+:root {
+  --cl-bg: #101116;
+  --cl-panel: rgba(23, 24, 32, .88);
+  --cl-border: rgba(255,255,255,.085);
+  --cl-white: #f5f5fa;
+  --cl-muted: rgba(220,220,235,.53);
+  --cl-purple: #a78bfa;
+  --cl-cyan: #67c8f3;
+  --cl-green: #4adea0;
+  --cl-red: #fb7185;
+  --cl-amber: #fbbf65;
+}
+
+/* GLOBAL LAYOUT */
+
+.dashboard-content {
+  width: min(100% - 48px, 1540px);
+  margin-inline: auto;
+  padding-bottom: 65px;
+}
+
+.dashboard-content > section {
+  min-width: 0;
+}
+
+.glass,
+.map-panel,
+.shipment-panel-wrap,
+.chart-panel,
+.operation-panel,
+.alerts-panel {
+  background: var(--cl-panel);
+  border: 1px solid var(--cl-border);
+  border-radius: 18px;
+  box-shadow: 0 12px 35px rgba(0,0,0,.15);
+  backdrop-filter: blur(18px);
+}
+
+/* BACKEND CONNECTION */
+
+.connection-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 17px;
+  margin-top: 17px;
+  border-radius: 13px;
+  border: 1px solid var(--cl-border);
+  background: rgba(255,255,255,.025);
+}
+
+.connection-copy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.connection-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(167,139,250,.09);
+  color: var(--cl-purple);
+}
+
+.connection-title {
+  color: var(--cl-white);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.connection-detail {
+  color: var(--cl-muted);
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.connection-state {
+  color: var(--cl-green);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .12em;
+}
+
+.connection-banner.is-offline {
+  border-color: rgba(251,113,133,.22);
+}
+
+.connection-banner.is-offline .connection-icon {
+  color: var(--cl-red);
+  background: rgba(251,113,133,.09);
+}
+
+.connection-retry {
+  border: 1px solid var(--cl-border);
+  border-radius: 9px;
+  background: rgba(255,255,255,.05);
+  color: var(--cl-white);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* MAP */
+
+.map-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0,1.55fr) minmax(320px,.85fr);
+  gap: 18px;
+  margin: 28px 0;
+  align-items: stretch;
+}
+
+.map-panel {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.map-panel-header,
+.panel-heading {
+  padding: 20px 21px 16px;
+}
+
+.panel-title,
+.map-panel-header h2,
+.shipment-panel-heading h2 {
+  color: var(--cl-white);
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -.035em;
+}
+
+.panel-subtitle {
+  color: var(--cl-muted);
+  font-size: 9px;
+  letter-spacing: .1em;
+  margin-top: 7px;
+}
+
+.map-viewport {
+  height: 410px;
+  overflow: hidden;
+  background: #171923;
+}
+
+.map-viewport .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #171923;
+  z-index: 1;
+}
+
+.map-panel-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 13px 20px;
+  border-top: 1px solid var(--cl-border);
+}
+
+.map-panel-footer span {
+  color: var(--cl-muted);
+  font-size: 10px;
+}
+
+.map-panel-footer i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.legend-vehicle { background: var(--cl-cyan); }
+.legend-hub { background: var(--cl-purple); }
+.legend-risk { background: var(--cl-red); }
+
+/* SHIPMENT INTELLIGENCE */
+
+.shipment-panel-wrap {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.shipment-panel-heading {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--cl-border);
+}
+
+.shipment-panel-wrap .glass {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* ANALYTICS */
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 18px;
+  margin: 28px 0;
+}
+
+.chart-panel {
+  min-width: 0;
+  min-height: 300px;
+  padding: 21px;
+  overflow: hidden;
+}
+
+.chart-panel .panel-title {
+  margin-bottom: 7px;
+}
+
+.chart-panel .panel-subtitle {
+  margin-bottom: 20px;
+}
+
+.chart-panel > div:last-child {
+  min-width: 0;
+}
+
+.chart-panel svg {
+  overflow: visible;
+}
+
+.chart-panel .recharts-cartesian-grid line {
+  stroke: rgba(255,255,255,.07);
+}
+
+.chart-panel .recharts-text {
+  fill: rgba(220,220,235,.53);
+  font-size: 10px;
+}
+
+.chart-panel .recharts-tooltip-wrapper {
+  outline: none;
+}
+
+/* OPERATIONS */
+
+.operations-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 17px;
+  margin: 28px 0;
+  align-items: stretch;
+}
+
+.operation-panel {
+  min-width: 0;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.operation-panel .panel-title {
+  margin-bottom: 18px;
+}
+
+/* Common typography inside operational cards */
+
+.operation-panel h2,
+.operation-panel h3,
+.operation-panel h4 {
+  color: var(--cl-white);
+}
+
+.operation-panel p,
+.operation-panel small {
+  color: var(--cl-muted);
+}
+
+.operation-panel button {
+  cursor: pointer;
+}
+
+/* TIMELINE */
+
+.operation-panel [class*="timeline"],
+.operation-panel [class*="event"] {
+  min-width: 0;
+}
+
+.operation-panel [class*="timeline"] {
+  color: rgba(235,235,245,.8);
+}
+
+/* ALERTS */
+
+.alerts-panel {
+  margin: 28px 0;
+  padding: 21px;
+  overflow: hidden;
+}
+
+.alerts-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 19px;
+}
+
+.view-all {
+  border: 1px solid rgba(167,139,250,.22);
+  border-radius: 9px;
+  background: rgba(167,139,250,.07);
+  color: #c4b5fd;
+  padding: 9px 13px;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.view-all:hover {
+  background: rgba(167,139,250,.15);
+}
+
+/* COMMON INTERACTION */
+
+button {
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--cl-purple);
+  outline-offset: 3px;
+}
+
+.glass,
+.chart-panel,
+.operation-panel,
+.map-panel,
+.shipment-panel-wrap,
+.alerts-panel {
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.glass:hover,
+.chart-panel:hover,
+.operation-panel:hover {
+  border-color: rgba(167,139,250,.17);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .map-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .operations-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-content {
+    width: min(100% - 28px, 100%);
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .operations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-viewport {
+    height: 330px;
+  }
+}
+
+@media (max-width: 480px) {
+  .connection-banner {
+    align-items: flex-start;
+  }
+
+  .connection-detail {
+    max-width: 220px;
+  }
+
+  .map-viewport {
+    height: 280px;
+  }
+
+  .chart-panel,
+  .operation-panel,
+  .alerts-panel {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
