@@ -707,13 +707,16 @@ export async function getShipment(identifier) {
 }
 
 
+
 export async function getDashboard() {
   const [shipments, fleet] = await Promise.all([
     getShipments(),
     getFleet(),
   ])
 
-  const active = shipments.filter(s => s.shipmentStatus !== 'delivered')
+  const active = shipments.filter(
+    s => s.shipmentStatus !== 'delivered'
+  )
 
   const critical = shipments.filter(s => {
     const temp = num(s.temperature ?? s.currentTemperature)
@@ -736,32 +739,41 @@ export async function getDashboard() {
   })
 
   const avg = shipments.length
-    ? shipments.reduce((sum, s) => sum + num(s.survival), 0) / shipments.length
+    ? shipments.reduce(
+        (sum, s) => sum + num(s.survival),
+        0
+      ) / shipments.length
     : 0
 
   return {
-    activeFleet: fleet.length || shipments.length,
-    fleetActive: fleet.length || shipments.length,
+    activeFleet: fleet.length,
+    fleetActive: fleet.length,
     activeShipments: active.length,
     totalShipments: shipments.length,
     criticalShipments: critical.length,
+
     criticalCases: critical.map(s => ({
       id: s.id,
       product: s.product,
       temperature: s.temperature,
       survival: s.survival,
     })),
+
     avgSurvival: Number(avg.toFixed(1)),
     averageSurvivalScore: Number(avg.toFixed(1)),
-    onTime: Math.max(82, 98 - critical.length * 4),
-    onTimeDelivery: Math.max(82, 98 - critical.length * 4),
-    lossAvoided: `₹${(
-      4.2 + Math.max(0, shipments.length - critical.length) * 0.45
-    ).toFixed(1)}L`,
-    batchesSaved: 12 + shipments.filter(s => s.survival >= 85).length,
-    lowFuelVehicles: shipments.filter(s => s.fuelLevelPct < 30).length,
+
+    // These metrics must not display invented estimates.
+    onTime: null,
+    onTimeDelivery: null,
+    lossAvoided: null,
+    batchesSaved: null,
+
+    lowFuelVehicles: shipments.filter(
+      s => s.fuelLevelPct < 30
+    ).length,
   }
 }
+
 
 export async function getFleet() {
   let vehicles = await safe(
