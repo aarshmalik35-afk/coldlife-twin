@@ -336,19 +336,27 @@ const runTick = async () => {
             icon={ShieldCheck}
           />
 
-          <KpiCard
-            label="On-time delivery"
-            value={`${data.dashboard.onTime ?? 0}%`}
-            sub="current forecast"
-            icon={Clock3}
-          />
+         
+<KpiCard
+  label="On-time delivery"
+  value={
+    data.dashboard.onTime == null
+      ? '—'
+      : `${data.dashboard.onTime}%`
+  }
+  sub="Awaiting verified delivery outcomes"
+  icon={Clock3}
+/>
 
-          <KpiCard
-            label="Loss avoided"
-            value={data.dashboard.lossAvoided ?? '₹0'}
-            sub={`${data.dashboard.batchesSaved ?? 0} batches saved`}
-            icon={Coins}
-          />
+
+          
+<KpiCard
+  label="Loss avoided"
+  value={data.dashboard.lossAvoided ?? '—'}
+  sub="Awaiting recorded intervention savings"
+  icon={Coins}
+/>
+
 
         </section>
 
