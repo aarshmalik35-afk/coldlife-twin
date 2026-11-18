@@ -1230,3 +1230,47 @@ button:focus-visible {
 .operator-calculation strong{color:#d8c5ff;font-size:17px}.operator-muted{color:rgba(220,220,235,.48)!important}
 .operator-success{color:#86efac!important}.operator-error{color:#fda4af!important}
 @media(max-width:560px){.operator-fields{grid-template-columns:1fr}.operator-head{align-items:flex-start}}
+
+
+/* Fleet Command Centre — refined glass-text treatment only */
+.dashboard-heading > h1 {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  color: transparent;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,.99) 0%,
+      rgba(239,237,255,.94) 34%,
+      rgba(196,181,253,.82) 72%,
+      rgba(167,139,250,.70) 100%),
+    repeating-linear-gradient(
+      112deg,
+      rgba(255,255,255,.13) 0px,
+      rgba(255,255,255,.13) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  background-blend-mode: screen;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 26px rgba(167,139,250,.10);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.10));
+  letter-spacing: -.058em;
+  line-height: 1.04;
+  text-wrap: balance;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .dashboard-heading > h1 {
+    color: #f1edff;
+    -webkit-text-fill-color: currentColor;
+    background: none;
+    text-shadow: 0 0 22px rgba(167,139,250,.12);
+  }
+}
