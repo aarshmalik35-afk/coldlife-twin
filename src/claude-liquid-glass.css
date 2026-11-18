@@ -1274,3 +1274,53 @@ button:focus-visible {
     text-shadow: 0 0 22px rgba(167,139,250,.12);
   }
 }
+
+
+/* Dashboard heading alignment: title and supporting copy share the left edge */
+.dashboard-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+}
+
+.dashboard-heading-main {
+  min-width: 0;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dashboard-heading-main .eyebrow,
+.dashboard-heading-main h1,
+.dashboard-heading-main p {
+  text-align: left;
+  align-self: flex-start;
+}
+
+.dashboard-heading-main h1 {
+  margin: 0;
+}
+
+.dashboard-heading-main p {
+  max-width: 620px;
+  margin: 12px 0 0;
+}
+
+.dashboard-heading .simulation-status {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 760px) {
+  .dashboard-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dashboard-heading .simulation-status {
+    margin-left: 0;
+  }
+}
