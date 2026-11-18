@@ -287,16 +287,18 @@ const runTick = async () => {
 
         <section className="dashboard-heading">
 
-          <div className="eyebrow">
-            OPERATIONS <span>/</span> LIVE DIGITAL TWIN
+          <div className="dashboard-heading-main">
+            <div className="eyebrow">
+              OPERATIONS <span>/</span> LIVE DIGITAL TWIN
+            </div>
+
+            <h1>Fleet Command Centre</h1>
+
+            <p>
+              Live pharmaceutical cold-chain telemetry,
+              risk prediction and controlled intervention.
+            </p>
           </div>
-
-          <h1>Fleet Command Centre</h1>
-
-          <p>
-            Live pharmaceutical cold-chain telemetry,
-            risk prediction and controlled intervention.
-          </p>
 
           <div className="simulation-status">
             <i />
