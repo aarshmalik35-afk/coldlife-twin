@@ -1764,3 +1764,192 @@ body {
     background-size: 72vw, auto, auto !important;
   }
 }
+
+
+/* ==========================================================
+   A.R.C.T.I.C. — restore charcoal / purple liquid glass
+   Replaces the unintended light theme while retaining the
+   refreshed glass depth and the existing dashboard layout.
+   ========================================================== */
+:root {
+  color-scheme: dark !important;
+  background: #17151f !important;
+  color: #f1edf9 !important;
+}
+html, body, #root {
+  min-height: 100%;
+  background-color: #17151f !important;
+}
+body {
+  color: #f1edf9 !important;
+  background:
+    radial-gradient(ellipse 1050px 720px at 8% 78%, rgba(105,75,158,.30), transparent 70%),
+    radial-gradient(ellipse 900px 650px at 92% 16%, rgba(80,65,127,.22), transparent 72%),
+    radial-gradient(ellipse 1000px 560px at 48% -12%, rgba(154,137,190,.10), transparent 72%),
+    linear-gradient(135deg,#282532 0%,#1d1b27 42%,#15141d 100%) !important;
+  background-attachment: fixed !important;
+}
+.app-shell {
+  background: transparent !important;
+  isolation: isolate;
+}
+.app-shell::before {
+  z-index: -1 !important;
+  background:
+    radial-gradient(ellipse 900px 620px at 9% 72%,rgba(143,103,204,.17),transparent 72%),
+    radial-gradient(ellipse 760px 540px at 91% 20%,rgba(111,91,163,.13),transparent 72%),
+    linear-gradient(145deg,rgba(255,255,255,.025),transparent 54%) !important;
+  opacity: 1 !important;
+  pointer-events: none;
+}
+.app-shell::after { opacity: .045 !important; }
+
+.app-header {
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.105),rgba(255,255,255,.025) 55%),
+    rgba(28,26,37,.62) !important;
+  border: 1px solid rgba(255,255,255,.19) !important;
+  backdrop-filter: blur(30px) saturate(185%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(185%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22),0 18px 48px rgba(4,3,10,.22) !important;
+}
+.glass,.map-panel,.chart-panel,.operation-panel.glass,.alerts-panel,
+.connection-banner,.operator-panel {
+  color: #f1edf9 !important;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.105) 0%,rgba(255,255,255,.028) 40%,rgba(143,112,191,.065) 100%),
+    rgba(31,29,41,.78) !important;
+  border: 1px solid rgba(225,213,248,.17) !important;
+  backdrop-filter: blur(30px) saturate(165%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(165%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.19),
+    inset 1px 0 0 rgba(255,255,255,.045),
+    0 20px 54px rgba(5,4,12,.28) !important;
+}
+.glass:hover,.map-panel:hover,.chart-panel:hover,
+.operation-panel.glass:hover,.alerts-panel:hover {
+  border-color: rgba(211,190,255,.27) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.23),0 22px 58px rgba(5,4,12,.32) !important;
+}
+
+/* Restore readable light text across every frosted surface. */
+.app-header .text-slate-900,
+.dashboard-heading h1,.panel-title,.kpi-card-label,
+.kpi-card-value,.alerts-heading,.connection-title,
+.glass .text-slate-100,.glass .text-white,
+.map-panel .text-white,.chart-panel .text-white,
+.operation-panel .text-white,.operator-title strong {
+  color: #f1edf9 !important;
+}
+.app-header .text-slate-500,
+.dashboard-heading p,.panel-subtitle,
+.kpi-grid .text-slate-500,.connection-detail,
+.dashboard-footer,.operator-muted,
+.operator-panel p,.operator-panel label {
+  color: #b9b0cb !important;
+}
+.eyebrow { color: #c0a3ff !important; }
+.app-header .arctic-brand-expansion { color: rgba(213,203,238,.68) !important; }
+.header-button {
+  color: #e7e0f5 !important;
+  background: linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.035)) !important;
+  border-color: rgba(255,255,255,.16) !important;
+}
+.header-button-primary {
+  color: #f5edff !important;
+  background: linear-gradient(135deg,rgba(139,92,246,.48),rgba(109,69,217,.28)) !important;
+  border-color: rgba(196,181,253,.42) !important;
+}
+.chart-panel .recharts-text { fill: #aaa0bf !important; }
+.chart-panel .recharts-cartesian-grid line { stroke: rgba(199,181,229,.13) !important; }
+.map-viewport { border-color: rgba(196,181,229,.18) !important; }
+
+/* Operator panel and form controls follow the same dark glass palette. */
+.operator-panel {
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.025) 48%,rgba(139,92,246,.07)),
+    rgba(30,27,41,.82) !important;
+}
+.operator-panel input,.operator-panel textarea,.operator-panel select {
+  color: #f1edf9 !important;
+  background: rgba(12,11,19,.48) !important;
+  border-color: rgba(196,181,253,.24) !important;
+}
+.operator-panel button:not(.operator-secondary) {
+  color: #fff !important;
+  background: linear-gradient(135deg,#8056d9,#5f3da8) !important;
+  border-color: rgba(196,181,253,.42) !important;
+}
+
+/* 3D illuminated A.R.C.T.I.C. emblem — dimensional bevels,
+   stacked violet rim, orbital ring and a controlled glow. */
+.arctic-logo-mark {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+  transform: perspective(180px) rotateX(9deg) rotateY(-10deg) translateZ(0) !important;
+  transform-style: preserve-3d !important;
+  border: 1px solid rgba(221,202,255,.78) !important;
+  border-radius: 15px !important;
+  color: #f0ddff !important;
+  background:
+    radial-gradient(circle at 28% 18%,rgba(255,255,255,.95),rgba(226,203,255,.42) 19%,transparent 44%),
+    radial-gradient(circle at 72% 78%,rgba(133,78,229,.55),transparent 58%),
+    linear-gradient(145deg,#4b3476 0%,#281b46 48%,#171126 100%) !important;
+  box-shadow:
+    0 0 0 1px rgba(180,139,255,.24),
+    0 4px 0 #211633,
+    0 7px 0 #171022,
+    0 10px 22px rgba(5,3,13,.52),
+    0 0 20px rgba(151,94,255,.62),
+    0 0 42px rgba(126,76,231,.34),
+    inset 0 1px 0 rgba(255,255,255,.72),
+    inset 0 -5px 10px rgba(8,4,18,.42) !important;
+}
+.arctic-logo-mark::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -5px !important;
+  z-index: -1 !important;
+  border: 1px solid rgba(190,151,255,.55) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 0 12px rgba(157,103,255,.55),inset 0 0 10px rgba(157,103,255,.18) !important;
+  transform: translateZ(-5px) !important;
+  pointer-events: none !important;
+}
+.arctic-logo-mark::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 5px !important;
+  z-index: 1 !important;
+  border: 1px solid rgba(224,205,255,.40) !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg,rgba(255,255,255,.13),transparent 48%,rgba(164,112,255,.13)) !important;
+  box-shadow: inset 0 1px 5px rgba(255,255,255,.22) !important;
+  pointer-events: none !important;
+}
+.arctic-logo-mark svg {
+  z-index: 2 !important;
+  color: #f4e8ff !important;
+  filter:
+    drop-shadow(0 0 2px #fff)
+    drop-shadow(0 0 5px rgba(205,163,255,.95))
+    drop-shadow(0 0 11px rgba(147,91,255,.9)) !important;
+  transform: translateZ(9px) !important;
+}
+.arctic-logo-orbit {
+  border-color: rgba(211,175,255,.9) !important;
+  box-shadow: 0 0 7px rgba(170,111,255,.8),inset 0 0 5px rgba(170,111,255,.35) !important;
+  transform: translateZ(5px) rotate(-38deg) !important;
+}
+
+/* Preserve the purple illuminated heading treatment on charcoal. */
+.dashboard-heading-main h1 {
+  color: #eee4ff !important;
+  -webkit-text-fill-color: transparent !important;
+  background: linear-gradient(100deg,#fff 0%,#d9c5ff 36%,#a986f5 72%,#e5d6ff 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  text-shadow: 0 0 24px rgba(155,112,255,.22) !important;
+}
