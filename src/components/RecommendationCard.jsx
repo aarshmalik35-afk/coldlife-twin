@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BrainCircuit, LoaderCircle, Sparkles, Snowflake, TriangleAlert, Zap } from 'lucide-react'
-import { getGeminiPrediction } from '../api/coldlifeApi'
+import { getGeminiPrediction, performShipmentAction } from '../api/coldlifeApi'
 
 const n = (v, f = 0) => {
   const x = Number(v)
@@ -63,7 +63,7 @@ function styleFor(risk) {
   return 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
 }
 
-export default function RecommendationCard({ shipment, onAccept }) {
+export default function RecommendationCard({ shipment, onAccept, onActionComplete }) {
   const s = shipment || {}
   const immediate = useMemo(() => instantPrediction(s), [
     s?.id,
@@ -78,11 +78,46 @@ export default function RecommendationCard({ shipment, onAccept }) {
   const [prediction, setPrediction] = useState(immediate)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [actionLoading, setActionLoading] = useState('')
+  const [actionMessage, setActionMessage] = useState('')
+  const [actionError, setActionError] = useState('')
 
   useEffect(() => {
     setPrediction(immediate)
     setError('')
   }, [s?.id, immediate])
+
+  const runShipmentAction = async (action) => {
+    if (!s?.id || actionLoading) return
+    setActionLoading(action)
+    setActionMessage('')
+    setActionError('')
+
+    try {
+      const result = await performShipmentAction(
+        s.id,
+        action,
+        action === 'QUARANTINE'
+          ? 'Operator initiated quarantine from shipment detail.'
+          : 'Operator initiated reefer cooling boost from shipment detail.'
+      )
+
+      if (result?.ok === false) {
+        throw new Error(result.error || 'The database did not confirm this action.')
+      }
+
+      setActionMessage(
+        action === 'QUARANTINE'
+          ? 'Shipment successfully quarantined.'
+          : 'Cooling boost applied successfully.'
+      )
+      if (onActionComplete) await onActionComplete()
+    } catch (e) {
+      setActionError(e?.message || 'The shipment action could not be completed.')
+    } finally {
+      setActionLoading('')
+    }
+  }
 
   const runAI = async () => {
     if (!s?.id) return
@@ -188,6 +223,34 @@ export default function RecommendationCard({ shipment, onAccept }) {
 
       {error && (
         <div className="mt-3 text-xs text-amber-300">{error}</div>
+      )}
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => runShipmentAction('BOOST_COOLING')}
+          disabled={Boolean(actionLoading)}
+          className="flex items-center justify-center gap-2 rounded-xl border border-cyan-300/30 bg-cyan-300/15 px-3 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-300/25 disabled:cursor-wait disabled:opacity-55"
+        >
+          <Snowflake size={14} />
+          {actionLoading === 'BOOST_COOLING' ? 'Boosting…' : 'Boost cooling'}
+        </button>
+        <button
+          type="button"
+          onClick={() => runShipmentAction('QUARANTINE')}
+          disabled={Boolean(actionLoading)}
+          className="flex items-center justify-center gap-2 rounded-xl border border-red-300/30 bg-red-300/15 px-3 py-2.5 text-xs font-bold text-red-100 transition hover:bg-red-300/25 disabled:cursor-wait disabled:opacity-55"
+        >
+          <TriangleAlert size={14} />
+          {actionLoading === 'QUARANTINE' ? 'Quarantining…' : 'Quarantine'}
+        </button>
+      </div>
+
+      {actionMessage && (
+        <div role="status" className="mt-2 text-xs text-emerald-300">{actionMessage}</div>
+      )}
+      {actionError && (
+        <div role="alert" className="mt-2 text-xs text-red-300">{actionError}</div>
       )}
 
       {onAccept && (
