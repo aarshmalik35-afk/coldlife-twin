@@ -980,8 +980,8 @@ export async function performShipmentAction(
   })
 
   if (error) {
-    console.warn('[ColdLife] action RPC unavailable:', error.message)
-    return { ok: false, fallback: true }
+    console.warn('[A.R.C.T.I.C.] shipment action failed:', error.message)
+    return { ok: false, error: error.message }
   }
 
   return data
