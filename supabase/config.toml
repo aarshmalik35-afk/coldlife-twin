@@ -1,4 +1,4 @@
 project_id = "coldlife-twin"
 
 [functions.gemini-predict]
-verify_jwt = true
+verify_jwt = false
