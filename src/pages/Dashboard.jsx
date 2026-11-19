@@ -35,7 +35,8 @@ import {
   getShipments,
   getStorages,
   tick,
-  health
+  health,
+  subscribeToColdLifeUpdates
 } from '../api/coldlifeApi'
 
 
@@ -196,21 +197,35 @@ useEffect(() => {
   refresh()
   checkBackend()
 
-  // The server-side cron runs the simulation.
-  // The browser only retrieves the latest database state.
+  // Realtime is the primary refresh path. Polling remains as a resilience
+  // fallback for dropped WebSocket connections and static/demo environments.
+  let refreshTimer
+  let unsubscribe = () => {}
+
+  try {
+    unsubscribe = subscribeToColdLifeUpdates(() => {
+      if (paused) return
+      clearTimeout(refreshTimer)
+      refreshTimer = setTimeout(() => refresh(), 350)
+    })
+  } catch (error) {
+    console.warn('[ColdLife] Realtime subscription unavailable; polling fallback active:', error)
+  }
+
   const refreshId = setInterval(() => {
     if (!paused) refresh()
-  }, 5000)
+  }, 20000)
 
   const healthId = setInterval(() => {
     checkBackend()
   }, 30000)
 
   const onRefresh = () => refresh()
-
   window.addEventListener('coldlife-refresh', onRefresh)
 
   return () => {
+    clearTimeout(refreshTimer)
+    unsubscribe()
     clearInterval(refreshId)
     clearInterval(healthId)
     window.removeEventListener('coldlife-refresh', onRefresh)
@@ -304,7 +319,7 @@ const runTick = async () => {
             <i />
             Simulation {paused ? 'paused' : 'running'}
             <span>·</span>
-            refreshes every 5 sec
+            Realtime updates · 20 sec fallback
           </div>
 
         </section>
