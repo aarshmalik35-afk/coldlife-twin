@@ -1551,3 +1551,72 @@ body {
   border-color: rgba(235, 234, 245, .18) !important;
   box-shadow: inset 0 1px rgba(255,255,255,.19), 0 14px 38px rgba(8,10,16,.19) !important;
 }
+
+
+/* A.R.C.T.I.C. liquid-glass finish — background and glass material only.
+   Keeps existing component dimensions, spacing, typography and card layouts intact. */
+:root {
+  background: #17151f !important;
+}
+html, body, #root {
+  min-height: 100%;
+  background-color: #17151f !important;
+}
+body {
+  background:
+    radial-gradient(ellipse 980px 680px at 7% 78%, rgba(112, 82, 165, .34), transparent 70%),
+    radial-gradient(ellipse 880px 620px at 93% 18%, rgba(87, 75, 128, .22), transparent 72%),
+    radial-gradient(ellipse 1000px 560px at 48% -12%, rgba(173, 164, 194, .13), transparent 72%),
+    linear-gradient(135deg, #282532 0%, #1d1b27 42%, #15141d 100%) !important;
+  background-attachment: fixed !important;
+}
+.app-shell {
+  background: transparent !important;
+  isolation: isolate;
+}
+.app-shell::before {
+  z-index: -1 !important;
+  background:
+    radial-gradient(ellipse 900px 620px at 9% 72%, rgba(156, 117, 218, .20), transparent 72%),
+    radial-gradient(ellipse 760px 540px at 91% 20%, rgba(126, 111, 169, .14), transparent 72%),
+    linear-gradient(145deg, rgba(255,255,255,.035), transparent 54%) !important;
+  pointer-events: none;
+}
+.app-shell::after {
+  opacity: .055 !important;
+}
+.app-header {
+  background: linear-gradient(120deg, rgba(255,255,255,.105), rgba(255,255,255,.025) 55%), rgba(28,26,37,.52) !important;
+  border: 1px solid rgba(255,255,255,.19) !important;
+  backdrop-filter: blur(30px) saturate(185%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(185%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 18px 48px rgba(4,3,10,.22) !important;
+}
+.glass,
+.map-panel,
+.chart-panel,
+.operation-panel.glass,
+.alerts-panel {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.135) 0%, rgba(255,255,255,.045) 38%, rgba(183,160,224,.075) 100%),
+    rgba(35, 32, 46, .48) !important;
+  border: 1px solid rgba(255,255,255,.24) !important;
+  backdrop-filter: blur(32px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.32),
+    inset 1px 0 0 rgba(255,255,255,.075),
+    inset 0 -1px 0 rgba(255,255,255,.045),
+    0 20px 54px rgba(5,4,12,.25) !important;
+}
+.glass:hover,
+.map-panel:hover,
+.chart-panel:hover,
+.operation-panel.glass:hover,
+.alerts-panel:hover {
+  border-color: rgba(255,255,255,.29) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.36),
+    inset 1px 0 0 rgba(255,255,255,.09),
+    0 22px 58px rgba(5,4,12,.27) !important;
+}
