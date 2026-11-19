@@ -36,7 +36,11 @@ export default function OperatorMode({ onVerified }) {
       await sendOperatorAuthOtp(OPERATOR_EMAIL)
       setOtpSent(true)
       setMessage('A sign-in code has been sent to the authorised operator email.')
-    } catch (e) { setError(e.message || 'Could not send sign-in code') }
+    } catch (e) {
+      setError(e.status === 429
+        ? 'Supabase has rate-limited sign-in emails. Wait for the limit window to reset before requesting another code.'
+        : (e.message || 'Could not send sign-in code'))
+    }
     finally { setBusy(false) }
   }
 
