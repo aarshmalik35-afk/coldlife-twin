@@ -123,7 +123,7 @@ function shipmentPopup(s) {
       <div class="coldlife-meter"><i style="width:${Math.max(0, Math.min(100, cooling))}%"></i></div>
 
       <div class="coldlife-actions">
-        <button data-coldlife-action="BOOST_COOLING" data-shipment="${escapeHtml(s.id || s.shipmentId || '')}">
+        <button data-coldlife-action="BOOST_COOLING" data-shipment="${escapeHtml(s._dbId || s.shipmentUUID || '')}">
           ❄ Boost cooling
         </button>
         <button class="danger" data-coldlife-action="QUARANTINE" data-shipment="${escapeHtml(s._dbId || s.shipmentUUID || '')}">
@@ -192,8 +192,14 @@ export default function FleetMap({
     const group = layerRef.current
     if (!map || !group) return
 
+    // Preserve the active shipment popup when live data refreshes rebuild markers.
+    let openShipmentId = null
+    group.eachLayer(layer => {
+      if (layer.isPopupOpen?.()) openShipmentId = layer.options?.title || null
+    })
     group.clearLayers()
     const bounds = []
+    let markerToReopen = null
 
     for (const s of shipments) {
       const lat = n(s.lat ?? s.latitude, NaN)
@@ -208,9 +214,17 @@ export default function FleetMap({
         title: `${s.id || s.shipmentId || ''} ${status}`,
       }).addTo(group)
 
+      if (openShipmentId && String(s.id || s.shipmentId || '') === String(openShipmentId)) {
+        markerToReopen = marker
+      }
+
       marker.bindPopup(shipmentPopup(s), {
         minWidth: 310,
         maxWidth: 360,
+        autoClose: false,
+        closeOnClick: false,
+        closeOnEscapeKey: false,
+        keepInView: true,
       })
 
       marker.on('click', () => {
@@ -254,7 +268,8 @@ export default function FleetMap({
                     ? 'Cooling boost activated'
                     : 'Shipment quarantined'
               }
-              window.dispatchEvent(new Event('coldlife-refresh'))
+              // Keep the popup open so the operator can read the confirmation.
+              // Dashboard polling will reconcile the updated data shortly.
             } catch (error) {
               if (statusEl) statusEl.textContent = error?.message || 'Action failed'
             } finally {
@@ -288,6 +303,7 @@ export default function FleetMap({
       }
     }
 
+    if (markerToReopen) markerToReopen.openPopup()
     setTimeout(() => map.invalidateSize(), 50)
   }, [shipments, storages, fitKey, onSelect])
 
