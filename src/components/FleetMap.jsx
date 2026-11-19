@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { performShipmentAction } from '../api/coldlifeApi'
 
 
 const DEFAULT_CENTER = [19.0760, 72.8777]
@@ -122,7 +123,7 @@ function shipmentPopup(s) {
       <div class="coldlife-meter"><i style="width:${Math.max(0, Math.min(100, cooling))}%"></i></div>
 
       <div class="coldlife-actions">
-        <button data-coldlife-action="BOOST_COOLING" data-shipment="${escapeHtml(s._dbId || s.shipmentUUID || '')}">
+        <button data-coldlife-action="BOOST_COOLING" data-shipment="${escapeHtml(s.id || s.shipmentId || '')}">
           ❄ Boost cooling
         </button>
         <button class="danger" data-coldlife-action="QUARANTINE" data-shipment="${escapeHtml(s._dbId || s.shipmentUUID || '')}">
@@ -238,12 +239,14 @@ export default function FleetMap({
             if (statusEl) statusEl.textContent = 'Sending…'
 
             try {
-              const { data, error } = await supabase.rpc('perform_shipment_action', {
-                p_shipment_id: shipmentDbId,
-                p_action: actionName,
-                p_notes: `Map control: ${actionName}`,
-              })
-              if (error) throw error
+              const result = await performShipmentAction(
+                shipmentDbId,
+                actionName,
+                `Map control: ${actionName}`
+              )
+              if (!result || result.ok !== true) {
+                throw new Error(result?.error || 'Supabase did not confirm the shipment action.')
+              }
 
               if (statusEl) {
                 statusEl.textContent =
