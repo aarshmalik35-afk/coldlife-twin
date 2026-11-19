@@ -951,18 +951,21 @@ export async function performShipmentAction(
   notes = ''
 ) {
   try {
-    const shipment = await getShipment(identifier)
-    if (!shipment?._dbId) {
+    const rawIdentifier = String(identifier || '').trim()
+    const isDatabaseUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawIdentifier)
+    const shipment = isDatabaseUuid ? null : await getShipment(rawIdentifier)
+    const shipmentDbId = isDatabaseUuid ? rawIdentifier : shipment?._dbId
+
+    if (!shipmentDbId) {
       throw new Error('Shipment database ID is missing; action was not sent.')
     }
 
     let action = String(actionName || '').trim().toUpperCase()
-
     if (action === 'ACCEPT_RECOMMENDATION') {
       action =
-        shipment.status === 'critical'
+        shipment?.status === 'critical'
           ? 'QUARANTINE'
-          : shipment.status === 'watch'
+          : shipment?.status === 'watch'
             ? 'PRIORITIZE'
             : 'RESUME'
     }
@@ -975,20 +978,16 @@ export async function performShipmentAction(
       'RESET_MONITORING',
       'BOOST_COOLING',
     ]
-
     if (!allowedActions.includes(action)) {
       throw new Error(`Unsupported shipment action: ${action || '(empty)'}`)
     }
 
-    // Call the PostgREST RPC endpoint directly through the configured
-    // REST transport. This module does not depend on a global supabase
-    // variable being present in the browser.
     const { data } = await supabaseRestFetch(
       '/rest/v1/rpc/perform_shipment_action',
       {
         method: 'POST',
         body: JSON.stringify({
-          p_shipment_id: shipment._dbId,
+          p_shipment_id: shipmentDbId,
           p_action: action,
           p_notes: notes || `Dashboard action: ${action}`,
         }),
@@ -998,7 +997,6 @@ export async function performShipmentAction(
     if (!data || data.ok !== true) {
       throw new Error(data?.error || 'Supabase did not confirm the shipment action.')
     }
-
     return data
   } catch (error) {
     console.error('[A.R.C.T.I.C.] shipment action failed:', error)
