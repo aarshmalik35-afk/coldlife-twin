@@ -1953,3 +1953,44 @@ body {
   background-clip: text !important;
   text-shadow: 0 0 24px rgba(155,112,255,.22) !important;
 }
+
+
+/* A.R.C.T.I.C. ambient emblem watermark.
+   Only the decorative backdrop is blurred; UI content remains sharp. */
+.app-shell {
+  position: relative !important;
+  isolation: isolate !important;
+}
+.app-shell::before {
+  content: "" !important;
+  position: fixed !important;
+  inset: -5vh -3vw !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: .56 !important;
+  filter: blur(12px) saturate(135%) !important;
+  transform: translateZ(0) !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 700'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='25%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23f0ddff' stop-opacity='.95'/%3E%3Cstop offset='.22' stop-color='%23bd8cff' stop-opacity='.82'/%3E%3Cstop offset='.58' stop-color='%23834ce8' stop-opacity='.58'/%3E%3Cstop offset='1' stop-color='%234b267f' stop-opacity='.16'/%3E%3C/radialGradient%3E%3Cfilter id='glow' x='-80%25' y='-80%25' width='260%25' height='260%25'%3E%3CfeGaussianBlur stdDeviation='15' result='b'/%3E%3CfeMerge%3E%3CfeMergeNode in='b'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3ClinearGradient id='edge' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23fff' stop-opacity='.9'/%3E%3Cstop offset='.45' stop-color='%23d5b5ff' stop-opacity='.7'/%3E%3Cstop offset='1' stop-color='%237b43d7' stop-opacity='.9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(350 350)' filter='url(%23glow)' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse rx='270' ry='112' transform='rotate(-34)' stroke='%23a879ff' stroke-width='8' opacity='.42'/%3E%3Cellipse rx='235' ry='94' transform='rotate(34)' stroke='%23d8baff' stroke-width='4' opacity='.28'/%3E%3Cpath d='M0-220V220M-220 0H220M-156-156L156 156M156-156L-156 156' stroke='url(%23edge)' stroke-width='25' opacity='.24'/%3E%3Cpath d='M0-220V220M-220 0H220M-156-156L156 156M156-156L-156 156' stroke='url(%23edge)' stroke-width='9'/%3E%3Cpath d='M0-220l-30 42m30-42 30 42M0 220l-30-42m30 42 30-42M-220 0l42-30m-42 30 42 30M220 0l-42-30m42 30-42 30M-156-156l52 8m-52-8 8 52M156 156l-52-8m52 8-8-52M156-156l-52 8m52-8-8 52M-156 156l52-8m-52 8 8-52' stroke='url(%23edge)' stroke-width='17' opacity='.85'/%3E%3Ccircle r='52' fill='url(%23g)' stroke='%23f1e4ff' stroke-width='7'/%3E%3Ccircle r='34' stroke='%23fff' stroke-width='3' opacity='.75'/%3E%3C/g%3E%3C/svg%3E") no-repeat 82% 38% / min(58vw, 720px),
+    radial-gradient(ellipse 820px 620px at 82% 42%,rgba(126,76,231,.18),transparent 72%),
+    radial-gradient(ellipse 900px 700px at 12% 78%,rgba(90,59,139,.14),transparent 72%) !important;
+  background-color: transparent !important;
+}
+.app-shell::after {
+  z-index: 0 !important;
+  pointer-events: none !important;
+  opacity: .035 !important;
+}
+.app-header,
+.dashboard-content {
+  position: relative !important;
+  z-index: 1 !important;
+}
+@media (max-width: 760px) {
+  .app-shell::before {
+    opacity: .38 !important;
+    background-position: 88% 22%, center, center !important;
+    background-size: 88vw, auto, auto !important;
+    filter: blur(10px) saturate(130%) !important;
+  }
+}
