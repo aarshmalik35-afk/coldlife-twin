@@ -1196,6 +1196,12 @@ export async function verifyOperatorAuthOtp(email, token) {
   })
 }
 
+export async function getOperatorAuthUser(accessToken) {
+  return supabaseRestFetch('/auth/v1/user', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+}
+
 export async function submitInterventionOutcome(accessToken, payload) {
   return supabaseRestFetch('/functions/v1/coldlife-verify-intervention', {
     method: 'POST',

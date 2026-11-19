@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ShieldCheck, LockKeyhole, LogOut, RefreshCw, CheckCircle2 } from 'lucide-react'
-import { getPendingInterventions, sendOperatorAuthOtp, verifyOperatorAuthOtp, submitInterventionOutcome } from '../api/coldlifeApi'
+import { getPendingInterventions, sendOperatorAuthOtp, verifyOperatorAuthOtp, getOperatorAuthUser, submitInterventionOutcome } from '../api/coldlifeApi'
 
 const OPERATOR_EMAIL = 'aarshmalik35@gmail.com'
 const SESSION_KEY = 'coldlife_operator_session'
@@ -28,7 +28,28 @@ export default function OperatorMode({ onVerified }) {
     } catch (e) { setError(e.message || 'Could not load pending ledger entries') }
   }, [])
 
-  useEffect(() => { if (session?.access_token) loadRows() }, [session, loadRows])
+  useEffect(() => {
+    let cancelled = false
+    const validateSession = async () => {
+      if (!session?.access_token) return
+      try {
+        const { data } = await getOperatorAuthUser(session.access_token)
+        const email = data?.email?.toLowerCase()
+        if (email !== OPERATOR_EMAIL.toLowerCase()) {
+          throw new Error('This signed-in account is not the authorised operator email.')
+        }
+        if (!cancelled) await loadRows()
+      } catch (e) {
+        localStorage.removeItem(SESSION_KEY)
+        if (!cancelled) {
+          setSession(null)
+          setError(e.message || 'Operator session is invalid or expired. Request a new sign-in link.')
+        }
+      }
+    }
+    validateSession()
+    return () => { cancelled = true }
+  }, [session, loadRows])
 
   const requestOtp = async () => {
     setBusy(true); setError(''); setMessage('')
