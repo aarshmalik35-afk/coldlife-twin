@@ -42,7 +42,21 @@ export default function ShipmentDetail() {
       .then(value => { if (active) setStorages(value) })
       .catch(error => { if (active) setPageError(error?.message || 'Could not load storage locations.') })
 
-    return () => { active = false }
+    // The dashboard already polls live Supabase state. Shipment detail must
+    // do the same; otherwise its telemetry, driver, vehicle and custody cards
+    // stay frozen after the first page load.
+    const refreshId = window.setInterval(() => {
+      getShipment(id)
+        .then(value => { if (active) setS(value) })
+        .catch(error => {
+          if (active) setPageError(error?.message || 'Could not refresh shipment data.')
+        })
+    }, 5000)
+
+    return () => {
+      active = false
+      window.clearInterval(refreshId)
+    }
   }, [id])
 
   if (!s) {
