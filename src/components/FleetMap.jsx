@@ -144,6 +144,9 @@ export default function FleetMap({
   const mapRef = useRef(null)
   const layerRef = useRef(null)
   const fittedRef = useRef('')
+  const vehicleMarkersRef = useRef(new Map())
+  const vehicleFramesRef = useRef(new Map())
+  const hubMarkersRef = useRef(new Map())
 
   const fitKey = useMemo(() => {
     const ids = [
@@ -192,30 +195,68 @@ export default function FleetMap({
     const group = layerRef.current
     if (!map || !group) return
 
-    // Preserve the active shipment popup when live data refreshes rebuild markers.
-    let openShipmentId = null
-    group.eachLayer(layer => {
-      if (layer.isPopupOpen?.()) openShipmentId = String(layer.options?.title || '').split(' ')[0] || null
-    })
-    group.clearLayers()
     const bounds = []
-    let markerToReopen = null
+    const liveIds = new Set()
+    const liveHubIds = new Set()
 
+    // Reuse existing Leaflet markers instead of clearing/recreating them on
+    // every dashboard poll. Animate each GPS update smoothly over the poll
+    // interval so vehicles visibly travel rather than teleport.
     for (const s of shipments) {
       const lat = n(s.lat ?? s.latitude, NaN)
       const lng = n(s.lng ?? s.longitude, NaN)
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
 
+      const id = String(s._dbId || s.shipmentUUID || s.id || s.shipmentId || '')
+      if (!id) continue
+      liveIds.add(id)
       bounds.push([lat, lng])
+
       const status = stateFor(s)
+      let marker = vehicleMarkersRef.current.get(id)
 
-      const marker = L.marker([lat, lng], {
-        icon: markerIcon(status),
-        title: `${s.id || s.shipmentId || ''} ${status}`,
-      }).addTo(group)
+      if (!marker) {
+        marker = L.marker([lat, lng], {
+          icon: markerIcon(status),
+          title: `${s.id || s.shipmentId || ''} ${status}`,
+          riseOnHover: true,
+        }).addTo(group)
+        vehicleMarkersRef.current.set(id, marker)
+        marker.on('click', () => onSelect?.(s.id || s.shipmentId))
+      } else {
+        const frame = vehicleFramesRef.current.get(id)
+        if (frame) cancelAnimationFrame(frame)
 
-      if (openShipmentId && String(s.id || s.shipmentId || '') === String(openShipmentId)) {
-        markerToReopen = marker
+        const from = marker.getLatLng()
+        const to = L.latLng(lat, lng)
+        const distance = map.distance(from, to)
+
+        if (distance > 1.5) {
+          const duration = Math.min(4800, Math.max(900, distance * 3.2))
+          const started = performance.now()
+          const animate = (now) => {
+            const progress = Math.min(1, (now - started) / duration)
+            // Smooth ease-in/ease-out interpolation between real GPS samples.
+            const eased = progress * progress * (3 - 2 * progress)
+            marker.setLatLng([
+              from.lat + (to.lat - from.lat) * eased,
+              from.lng + (to.lng - from.lng) * eased,
+            ])
+            if (progress < 1) {
+              vehicleFramesRef.current.set(id, requestAnimationFrame(animate))
+            } else {
+              vehicleFramesRef.current.delete(id)
+            }
+          }
+          vehicleFramesRef.current.set(id, requestAnimationFrame(animate))
+        } else {
+          marker.setLatLng(to)
+        }
+
+        if (marker.options.title !== `${s.id || s.shipmentId || ''} ${status}`) {
+          marker.setIcon(markerIcon(status))
+          marker.options.title = `${s.id || s.shipmentId || ''} ${status}`
+        }
       }
 
       marker.bindPopup(shipmentPopup(s), {
@@ -227,10 +268,7 @@ export default function FleetMap({
         keepInView: true,
       })
 
-      marker.on('click', () => {
-        onSelect?.(s.id || s.shipmentId)
-      })
-
+      marker.off('popupopen')
       marker.on('popupopen', (event) => {
         const root = event.popup.getElement()
         if (!root) return
@@ -263,13 +301,10 @@ export default function FleetMap({
               }
 
               if (statusEl) {
-                statusEl.textContent =
-                  actionName === 'BOOST_COOLING'
-                    ? 'Cooling boost activated'
-                    : 'Shipment quarantined'
+                statusEl.textContent = actionName === 'BOOST_COOLING'
+                  ? 'Cooling boost activated'
+                  : 'Shipment quarantined'
               }
-              // Keep the popup open so the operator can read the confirmation.
-              // Dashboard polling will reconcile the updated data shortly.
             } catch (error) {
               if (statusEl) statusEl.textContent = error?.message || 'Action failed'
             } finally {
@@ -280,20 +315,46 @@ export default function FleetMap({
       })
     }
 
+    // Remove only vehicles that disappeared from the current data set.
+    for (const [id, marker] of vehicleMarkersRef.current) {
+      if (!liveIds.has(id)) {
+        const frame = vehicleFramesRef.current.get(id)
+        if (frame) cancelAnimationFrame(frame)
+        vehicleFramesRef.current.delete(id)
+        group.removeLayer(marker)
+        vehicleMarkersRef.current.delete(id)
+      }
+    }
+
     for (const h of storages) {
       const lat = n(h.lat ?? h.latitude, NaN)
       const lng = n(h.lng ?? h.longitude, NaN)
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
 
+      const id = String(h._dbId || h.storageId || h.code || h.id || '')
+      if (!id) continue
+      liveHubIds.add(id)
       bounds.push([lat, lng])
-      L.marker([lat, lng], { icon: hubIcon() })
-        .addTo(group)
-        .bindPopup(`<b>${escapeHtml(h.name || h.code || 'Cold hub')}</b><br>${escapeHtml(h.city || '')}`)
+
+      let marker = hubMarkersRef.current.get(id)
+      if (!marker) {
+        marker = L.marker([lat, lng], { icon: hubIcon() }).addTo(group)
+        hubMarkersRef.current.set(id, marker)
+      } else {
+        marker.setLatLng([lat, lng])
+      }
+      marker.bindPopup(`<b>${escapeHtml(h.name || h.code || 'Cold hub')}</b><br>${escapeHtml(h.city || '')}`)
+    }
+
+    for (const [id, marker] of hubMarkersRef.current) {
+      if (!liveHubIds.has(id)) {
+        group.removeLayer(marker)
+        hubMarkersRef.current.delete(id)
+      }
     }
 
     if (fittedRef.current !== fitKey) {
       fittedRef.current = fitKey
-
       if (bounds.length === 1) {
         map.setView(bounds[0], 12)
       } else if (bounds.length > 1) {
@@ -303,7 +364,6 @@ export default function FleetMap({
       }
     }
 
-    if (markerToReopen) markerToReopen.openPopup()
     setTimeout(() => map.invalidateSize(), 50)
   }, [shipments, storages, fitKey, onSelect])
 
