@@ -7,6 +7,23 @@ const SUPABASE_KEY =
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
   ''
 
+import { createClient } from '@supabase/supabase-js'
+
+// Keep the lightweight REST adapter for existing query behavior, while using
+// the official client for actual Postgres Changes/WebSocket subscriptions.
+const realtimeClient = SUPABASE_URL && SUPABASE_KEY
+  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+      realtime: {
+        params: { eventsPerSecond: 10 },
+      },
+    })
+  : null
+
 const REQUEST_TIMEOUT_MS = 10000
 
 export const supabaseConfigReady = Boolean(
@@ -235,23 +252,18 @@ export const supabase = {
     },
   },
 
-  // Compatibility interface.
-  // Actual dashboard updates use REST polling,
-  // not a WebSocket Realtime connection.
-  channel() {
-    const chain = {
-      on() {
-        return chain
-      },
-      subscribe() {
-        return chain
-      },
+  // Real Supabase Realtime channel backed by the official client.
+  channel(name) {
+    if (!realtimeClient) {
+      throw makeError('Supabase Realtime is unavailable: configuration is missing.')
     }
-
-    return chain
+    return realtimeClient.channel(name)
   },
 
-  removeChannel() {},
+  removeChannel(channel) {
+    if (realtimeClient && channel) return realtimeClient.removeChannel(channel)
+    return Promise.resolve('ok')
+  },
 }
 
 // --------------------------------------------------
