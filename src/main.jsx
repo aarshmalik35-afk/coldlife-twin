@@ -1,3 +1,10 @@
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { HashRouter } from 'react-router-dom'
+import App from './App'
+import './styles.css'
+import './claude-liquid-glass.css'
+
 // Consume Supabase's implicit-flow session fragment before HashRouter reads the URL.
 const OPERATOR_SESSION_KEY = 'coldlife_operator_session'
 if (window.location.hash.includes('access_token=')) {
@@ -16,12 +23,6 @@ if (window.location.hash.includes('access_token=')) {
   }
 }
 
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { HashRouter } from 'react-router-dom'
-import App from './App'
-import './styles.css'
-import './claude-liquid-glass.css'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>
