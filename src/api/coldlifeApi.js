@@ -950,41 +950,63 @@ export async function performShipmentAction(
   actionName,
   notes = ''
 ) {
-  const shipment = await getShipment(identifier)
-  let action = String(actionName || '').toUpperCase()
+  try {
+    const shipment = await getShipment(identifier)
+    if (!shipment?._dbId) {
+      throw new Error('Shipment database ID is missing; action was not sent.')
+    }
 
-  if (action === 'ACCEPT_RECOMMENDATION') {
-    action =
-      shipment.status === 'critical'
-        ? 'QUARANTINE'
-        : shipment.status === 'watch'
-          ? 'PRIORITIZE'
-          : 'RESUME'
+    let action = String(actionName || '').trim().toUpperCase()
+
+    if (action === 'ACCEPT_RECOMMENDATION') {
+      action =
+        shipment.status === 'critical'
+          ? 'QUARANTINE'
+          : shipment.status === 'watch'
+            ? 'PRIORITIZE'
+            : 'RESUME'
+    }
+
+    const allowedActions = [
+      'QUARANTINE',
+      'PRIORITIZE',
+      'RESUME',
+      'MARK_DELIVERED',
+      'RESET_MONITORING',
+      'BOOST_COOLING',
+    ]
+
+    if (!allowedActions.includes(action)) {
+      throw new Error(`Unsupported shipment action: ${action || '(empty)'}`)
+    }
+
+    // Call the PostgREST RPC endpoint directly through the configured
+    // REST transport. This module does not depend on a global supabase
+    // variable being present in the browser.
+    const { data } = await supabaseRestFetch(
+      '/rest/v1/rpc/perform_shipment_action',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          p_shipment_id: shipment._dbId,
+          p_action: action,
+          p_notes: notes || `Dashboard action: ${action}`,
+        }),
+      }
+    )
+
+    if (!data || data.ok !== true) {
+      throw new Error(data?.error || 'Supabase did not confirm the shipment action.')
+    }
+
+    return data
+  } catch (error) {
+    console.error('[A.R.C.T.I.C.] shipment action failed:', error)
+    return {
+      ok: false,
+      error: error?.message || 'Unknown shipment action error',
+    }
   }
-
-  if (![
-    'QUARANTINE',
-    'PRIORITIZE',
-    'RESUME',
-    'MARK_DELIVERED',
-    'RESET_MONITORING',
-    'BOOST_COOLING',
-  ].includes(action)) {
-    action = 'RESUME'
-  }
-
-  const { data, error } = await supabase.rpc('perform_shipment_action', {
-    p_shipment_id: shipment._dbId,
-    p_action: action,
-    p_notes: notes || `Dashboard action: ${action}`,
-  })
-
-  if (error) {
-    console.warn('[A.R.C.T.I.C.] shipment action failed:', error.message)
-    return { ok: false, error: error.message }
-  }
-
-  return data
 }
 
 export async function action(identifier, payload = {}) {
