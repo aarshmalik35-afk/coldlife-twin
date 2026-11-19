@@ -418,6 +418,7 @@ function mapShipment(row, bundle) {
     .slice(-60)
 
   if (!telemetry.length) telemetry = makeHistory(row, 24)
+  const latestTelemetry = telemetry.at(-1) || {}
 
   const riskRows = bundle.risks
     .filter(r => r.shipment_id === row.id)
@@ -515,7 +516,7 @@ function mapShipment(row, bundle) {
     ]
   }
 
-  const speed = num(vehicle.speed_kmh, 42)
+  const speed = num(latestTelemetry.speed_kmh, num(vehicle.speed_kmh, 42))
 
   const driverScore = num(
     driver.driver_score,
@@ -578,8 +579,8 @@ function mapShipment(row, bundle) {
     vehicle: vehicle.code || vehicle.registration_no || 'CL-REEFER-DEMO',
     vehicleId: vehicle.code || vehicle.id || 'CL-REEFER-DEMO',
     vehicleName: vehicle.registration_no || vehicle.code || 'Reefer vehicle',
-    driver: vehicle.driver_name || 'ColdLife Driver',
-    driverName: vehicle.driver_name || 'ColdLife Driver',
+    driver: driver.driver_name || vehicle.driver_name || 'ColdLife Driver',
+    driverName: driver.driver_name || vehicle.driver_name || 'ColdLife Driver',
 
     status: effectiveStatus,
     shipmentStatus: row.status || 'in_transit',
@@ -626,13 +627,13 @@ function mapShipment(row, bundle) {
     fuelConsumption,
     fuelConsumptionLph: fuelConsumption,
 
-    battery: num(vehicle.battery_pct, 90),
-    batteryPct: num(vehicle.battery_pct, 90),
+    battery: num(latestTelemetry.battery_pct, num(vehicle.battery_pct, 90)),
+    batteryPct: num(latestTelemetry.battery_pct, num(vehicle.battery_pct, 90)),
     speed,
     speedKmh: speed,
-    engineTemp: num(health.engine_temp_c ?? vehicle.engine_temp_c, 84),
-    engineTempC: num(health.engine_temp_c ?? vehicle.engine_temp_c, 84),
-    reeferPower: num(vehicle.reefer_power_pct, 72),
+    engineTemp: num(health.engine_temp_c ?? latestTelemetry.engine_temp_c ?? vehicle.engine_temp_c, 84),
+    engineTempC: num(health.engine_temp_c ?? latestTelemetry.engine_temp_c ?? vehicle.engine_temp_c, 84),
+    reeferPower: num(latestTelemetry.reefer_power_pct, num(vehicle.reefer_power_pct, 72)),
 
     overallHealth,
     vehicleHealth: overallHealth,
