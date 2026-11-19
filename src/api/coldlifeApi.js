@@ -330,10 +330,10 @@ async function loadBundle() {
   let storages = await safe(supabase.from('cold_storages').select('*'), [])
 
   const [telemetry, risks, custody, driver, health, alerts] = await Promise.all([
-    safe(supabase.from('telemetry').select('*').order('recorded_at', { ascending: true }).limit(1500), []),
+    safe(supabase.from('telemetry').select('*').order('recorded_at', { ascending: false }).limit(1500), []),
     safe(supabase.from('risk_history').select('*').order('recorded_at', { ascending: true }).limit(1500), []),
-    safe(supabase.from('custody_events').select('*').order('recorded_at', { ascending: true }).limit(500), []),
-    safe(supabase.from('driver_behavior_snapshots').select('*').order('recorded_at', { ascending: true }).limit(1000), []),
+    safe(supabase.from('custody_events').select('*').order('recorded_at', { ascending: false }).limit(500), []),
+    safe(supabase.from('driver_behavior_snapshots').select('*').order('recorded_at', { ascending: false }).limit(1000), []),
     safe(supabase.from('vehicle_health_snapshots').select('*').order('recorded_at', { ascending: true }).limit(1000), []),
     safe(supabase.from('alerts').select('*').order('created_at', { ascending: false }).limit(100), []),
   ])
@@ -341,6 +341,15 @@ async function loadBundle() {
   if (!shipments.length) shipments = fallbackRows
   if (!vehicles.length) vehicles = fallbackVehicles
   if (!storages.length) storages = fallbackStorages
+
+  // Fetch newest rows first with a bounded limit, then restore chronological
+  // order for chart rendering and latest() selection. Ascending + limit
+  // previously pinned the UI to the oldest 1,500/1,000 records forever.
+  telemetry.reverse()
+  risks.reverse()
+  custody.reverse()
+  driver.reverse()
+  health.reverse()
 
   return {
     shipments,
