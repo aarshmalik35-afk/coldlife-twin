@@ -1176,7 +1176,14 @@ export async function getPendingInterventions() {
 }
 
 export async function sendOperatorAuthOtp(email) {
-  return supabaseRestFetch('/auth/v1/otp', {
+  // GitHub Pages hosts this app under /coldlife-twin/, not at the domain root.
+  // Pass the project base URL explicitly so Supabase does not fall back to
+  // the Site URL when generating the one-time sign-in link.
+  const appBaseUrl = new URL(import.meta.env.BASE_URL, window.location.origin).toString()
+  const redirectTo = new URL(appBaseUrl)
+  redirectTo.hash = '/'
+
+  return supabaseRestFetch(`/auth/v1/otp?redirect_to=${encodeURIComponent(redirectTo.toString())}`, {
     method: 'POST',
     body: JSON.stringify({ email, create_user: true }),
   })
