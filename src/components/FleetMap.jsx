@@ -195,7 +195,7 @@ export default function FleetMap({
     // Preserve the active shipment popup when live data refreshes rebuild markers.
     let openShipmentId = null
     group.eachLayer(layer => {
-      if (layer.isPopupOpen?.()) openShipmentId = layer.options?.title || null
+      if (layer.isPopupOpen?.()) openShipmentId = String(layer.options?.title || '').split(' ')[0] || null
     })
     group.clearLayers()
     const bounds = []
@@ -275,7 +275,7 @@ export default function FleetMap({
             } finally {
               button.disabled = false
             }
-          }, { once: true })
+          })
         })
       })
     }
