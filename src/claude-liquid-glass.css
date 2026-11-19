@@ -1620,3 +1620,147 @@ body {
     inset 1px 0 0 rgba(255,255,255,.09),
     0 22px 58px rgba(5,4,12,.27) !important;
 }
+
+
+/* ==========================================================
+   A.R.C.T.I.C. — refined light liquid-glass surface
+   Visual-only override: preserves component layout and behaviour.
+   ========================================================== */
+:root {
+  color-scheme: light;
+  background: #c8d6e8 !important;
+  color: #17263d;
+}
+html, body, #root {
+  background-color: #c8d6e8 !important;
+}
+body {
+  color: #17263d;
+  background:
+    radial-gradient(ellipse 1100px 760px at 12% 0%, rgba(255,255,255,.88), transparent 68%),
+    radial-gradient(ellipse 900px 680px at 92% 22%, rgba(146,184,232,.62), transparent 72%),
+    radial-gradient(ellipse 900px 650px at 52% 100%, rgba(183,170,225,.38), transparent 72%),
+    linear-gradient(135deg, #dce6f3 0%, #c5d4e8 48%, #b8cbe3 100%) !important;
+  background-attachment: fixed !important;
+}
+.app-shell {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+}
+/* Soft, oversized A.R.C.T.I.C. snowflake/orbit watermark.
+   The SVG blur is baked into the mark so dashboard copy stays crisp. */
+.app-shell::before {
+  z-index: -1 !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='3'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23b)' fill='none' stroke='%235a78aa' stroke-width='5' stroke-linecap='round' opacity='.48'%3E%3Cellipse cx='200' cy='200' rx='155' ry='70' transform='rotate(-38 200 200)'/%3E%3Cpath d='M200 105v190M105 200h190M133 133l134 134M267 133L133 267M200 105l-18 24m18-24 18 24m-18 166-18-24m18 24 18-24M105 200l24-18m-24 18 24 18m166-18-24-18m24 18-24 18M133 133l27 5m-27-5 5 27m134 134-27-5m27 5-5-27m0-134-27 5m27-5-5 27M133 267l27-5m-27 5 5-27'/%3E%3C/g%3E%3C/svg%3E") no-repeat 82% 17% / min(42vw, 510px),
+    radial-gradient(ellipse 900px 560px at 8% 0%, rgba(255,255,255,.40), transparent 72%),
+    radial-gradient(ellipse 760px 560px at 92% 28%, rgba(111,151,205,.20), transparent 74%) !important;
+  opacity: .52;
+  filter: blur(.2px);
+  pointer-events: none;
+}
+.app-shell::after { opacity: .025 !important; }
+
+/* Glass surfaces: translucent cool-white material, fine edge and soft refraction. */
+.app-header,
+.glass,
+.map-panel,
+.chart-panel,
+.operation-panel.glass,
+.alerts-panel,
+.connection-banner,
+.operator-panel {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.78) 0%, rgba(255,255,255,.43) 42%, rgba(219,232,250,.48) 100%) !important;
+  border: 1px solid rgba(255,255,255,.76) !important;
+  backdrop-filter: blur(30px) saturate(165%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(165%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.92),
+    inset 1px 0 0 rgba(255,255,255,.42),
+    0 18px 48px rgba(49,72,111,.13) !important;
+}
+.app-header {
+  background:
+    linear-gradient(115deg, rgba(255,255,255,.82), rgba(255,255,255,.48) 55%, rgba(211,228,250,.58)) !important;
+  border-color: rgba(255,255,255,.88) !important;
+  box-shadow: inset 0 1px 0 #fff, 0 14px 36px rgba(49,72,111,.12) !important;
+}
+.glass:hover,
+.map-panel:hover,
+.chart-panel:hover,
+.operation-panel.glass:hover,
+.alerts-panel:hover {
+  border-color: rgba(255,255,255,.95) !important;
+  box-shadow: inset 0 1px 0 #fff, 0 20px 50px rgba(49,72,111,.17) !important;
+}
+
+/* High-contrast ink on the lighter frosted surfaces. */
+.app-header .text-slate-900,
+.dashboard-heading h1,
+.panel-title,
+.kpi-card-label,
+.kpi-card-value,
+.operator-title strong,
+.alerts-heading,
+.connection-title,
+.glass .text-slate-100,
+.glass .text-white,
+.map-panel .text-white,
+.chart-panel .text-white,
+.operation-panel .text-white {
+  color: #17263d !important;
+}
+.app-header .text-slate-500,
+.dashboard-heading p,
+.panel-subtitle,
+.kpi-grid .text-slate-500,
+.connection-detail,
+.dashboard-footer,
+.operator-muted {
+  color: #536783 !important;
+}
+.eyebrow { color: #496da5 !important; }
+.app-header .arctic-brand-expansion { color: #536783 !important; }
+.header-button {
+  color: #29415f !important;
+  background: rgba(255,255,255,.54) !important;
+  border-color: rgba(85,116,158,.22) !important;
+}
+.header-button-primary {
+  color: #fff !important;
+  background: linear-gradient(135deg, #527fc0, #755fb0) !important;
+  border-color: rgba(255,255,255,.48) !important;
+}
+.arctic-logo-mark {
+  box-shadow: 0 5px 22px rgba(86,116,170,.20), inset 0 1px 0 #fff !important;
+}
+
+/* Keep data visualisations legible without changing their dimensions. */
+.chart-panel .recharts-text { fill: #536783 !important; }
+.chart-panel .recharts-cartesian-grid line { stroke: rgba(64,88,124,.16) !important; }
+.map-viewport { border-color: rgba(80,105,145,.22) !important; }
+.operator-panel {
+  color: #17263d;
+}
+.operator-panel p,
+.operator-panel label { color: #405572; }
+.operator-panel input,
+.operator-panel textarea,
+.operator-panel select {
+  color: #17263d !important;
+  background: rgba(255,255,255,.72) !important;
+  border-color: rgba(77,105,149,.24) !important;
+}
+.operator-panel button:not(.operator-link):not(.operator-secondary) {
+  background: linear-gradient(135deg,#527fc0,#755fb0);
+  color: #fff;
+  border-color: rgba(255,255,255,.55);
+}
+@media (max-width: 640px) {
+  .app-shell::before {
+    background-position: 88% 10%, center, center !important;
+    background-size: 72vw, auto, auto !important;
+  }
+}
